@@ -31,11 +31,15 @@ function createWindow() {
     win = new BrowserWindow({
       width: 800,
       height: 600,
+      resizable: false,
+      icon: 'build/smallLogoX32.ico',
       webPreferences: {
         enableRemoteModule: true
       }
     });
+    win.removeMenu();
   }
+  
   win.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`);
 }
 

@@ -1,4 +1,9 @@
+import './appDefault.scss';
 
 export function AppDefault() {
-  return <p>Default display</p>
+  return (
+    <div className='app'>
+
+    </div>
+  );
 }
