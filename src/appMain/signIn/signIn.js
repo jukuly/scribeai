@@ -7,12 +7,16 @@ export function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const config = window.api.getConfig();
+
   function signUp() {
     //TODO open the sign up page on website
   }
 
   function signIn() {
-    auth.signInWithEmailAndPassword(authInstance, email, password);
+    auth.signInWithEmailAndPassword(authInstance, email, password).then(() => {
+      if (config.minimize) window.api.minimize();
+    });
   }
 
   return (

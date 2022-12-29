@@ -1,9 +1,19 @@
+import { SignIn } from "../signIn/signIn";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { authInstance } from "../../firebase";
 import './appDefault.scss';
 
 export function AppDefault() {
-  return (
-    <div className='app'>
+  const [user] = useAuthState(authInstance);
 
-    </div>
+  window.api.getConfig().then(config => {
+    if (user) window.api.minimize();
+  });
+
+  return (
+    user ? 
+    <div className="app">
+    </div> 
+    : <SignIn />
   );
 }
