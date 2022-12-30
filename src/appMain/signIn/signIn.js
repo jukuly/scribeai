@@ -2,13 +2,11 @@ import './signIn.scss';
 import { authInstance } from '../../firebase';
 import * as auth from "firebase/auth";
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   function signUp() {
     //TODO open the sign up page on website
@@ -33,9 +31,9 @@ export function SignIn() {
       });
   }
 
-  auth.onAuthStateChanged(authInstance, (user) => {
+  auth.onAuthStateChanged(authInstance, async (user) => {
     if (user) {
-      navigate('/main');
+      await window.api.signIn();
     }
   });
 
