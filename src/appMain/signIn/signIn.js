@@ -2,30 +2,54 @@ import './signIn.scss';
 import { authInstance } from '../../firebase';
 import * as auth from "firebase/auth";
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const config = window.api.getConfig();
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   function signUp() {
     //TODO open the sign up page on website
   }
 
-  function signIn() {
-    auth.signInWithEmailAndPassword(authInstance, email, password).then(() => {
-      if (config.minimize) window.api.minimize();
-    });
+  function forgotPassword() {
+    //TODO open forgot password webpage
   }
+
+  function signIn() {
+    auth.signInWithEmailAndPassword(authInstance, email, password)
+      .then(setError(''))
+      .catch(err => {
+        if (err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found'
+          || err.code === 'auth/wrong-password' || password === '') {
+          setError('E-mail or password is incorrect');
+        } else if (err.code === 'auth/user-disabled') {
+          setError('This user is suspended');
+        } else {
+          setError(err.code);
+        }
+      });
+  }
+
+  auth.onAuthStateChanged(authInstance, (user) => {
+    if (user) {
+      navigate('/main');
+    }
+  });
 
   return (
     <div className='sign-in'>
       <div className='middle-box'>
         <input className='email' type='text' placeholder='Email' value={email} onChange={(event) => setEmail(event.target.value)}></input>
         <input className='password' type='password' placeholder='Password' value={password} onChange={(event) => setPassword(event.target.value)}></input>
-        <button onClick={() => signIn()}>Sign In</button>
+        <div className='below-fields'>
+          <span>{ error }</span>
+          <button onClick={() => signIn()}>Sign In</button>
+        </div>
         <span className='sign-up'>No account yet? <span className='underlined' onClick={() => signUp()}>Sign up</span> instead</span>
+        <span className='forgot'><span className='underlined' onClick={() => forgotPassword()}>I forgot my password</span></span>
       </div>
     </div>
   );

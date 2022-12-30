@@ -14,17 +14,6 @@ contextBridge.exposeInMainWorld(
         if (validChannels.includes(channel)) {
           ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
-      },
-      async getConfig() {
-        const config = await ipcRenderer.invoke('get-config');
-        return config;
-      },
-      async minimize() {
-        const result = await ipcRenderer.invoke('minimize-main');
-        return result;
-      },
-      async expand() {
-        console.log('not implemented yet');
       }
   }
 );
