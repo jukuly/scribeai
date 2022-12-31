@@ -3,6 +3,8 @@ const path = require('path');
 const isDev = require('electron-is-dev');
 const keySender = require('node-key-sender');
 
+const firstInstance = app.requestSingleInstanceLock();
+
 let mainWindow;
 let popUpWindow;
 let tray;
@@ -83,6 +85,16 @@ async function getSelectedText() {
   const result = clipboard.readText();
   clipboard.writeText(text);
   return result;
+}
+
+if (!firstInstance) {
+  app.exit()
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      mainWindow.show();
+    }
+  });
 }
 
 app.on('ready', () => initializeApp());
