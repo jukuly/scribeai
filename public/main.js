@@ -51,9 +51,8 @@ function createPopUp() {
     popUpWindow = new BrowserWindow({
       x: screen.getCursorScreenPoint().x,
       y: screen.getCursorScreenPoint().y,
-      height: 200,
-      width: 200,
-      useContentSize: true,
+      height: 75,
+      width: 175,
       movable: false,
       resizable: false,
       skipTaskbar: true,
@@ -64,12 +63,14 @@ function createPopUp() {
       hasShadow: false,
       show: false,
       transparent: true,
+      backgroundColor: '#ffffff',
       webPreferences: {
         sandbox: false,
         preload: path.join(app.getAppPath(), 'public/preload.js')
       }
     }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y));
     popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../build/index.html#/pop-up')}`); 
+
     if (isDev) popUpWindow.webContents.openDevTools();
   }
 }
