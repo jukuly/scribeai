@@ -20,12 +20,6 @@ contextBridge.exposeInMainWorld(
       },
       async getSelectedText() {
         return await ipcRenderer.invoke('get-selected-text');
-      },
-      async signIn() {
-        return await ipcRenderer.invoke('sign-in');
-      },
-      async signOut() {
-        return await ipcRenderer.invoke('sign-out');
       }
   }
 );

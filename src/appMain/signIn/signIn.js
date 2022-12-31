@@ -28,24 +28,24 @@ export function SignIn() {
         } else {
           setError(err.code);
         }
+        setPassword('');
       });
   }
-
-  auth.onAuthStateChanged(authInstance, async (user) => {
-    if (user) {
-      await window.api.signIn();
-    }
-  });
 
   return (
     <div className='sign-in'>
       <div className='middle-box'>
-        <input className='email' type='text' placeholder='Email' value={email} onChange={(event) => setEmail(event.target.value)}></input>
-        <input className='password' type='password' placeholder='Password' value={password} onChange={(event) => setPassword(event.target.value)}></input>
-        <div className='below-fields'>
-          <span>{ error }</span>
-          <button onClick={() => signIn()}>Sign In</button>
-        </div>
+        <form onSubmit={event => {
+            event.preventDefault();
+            signIn();
+          }}>
+          <input className='email' type='text' placeholder='Email' value={email} onChange={event => setEmail(event.target.value)}></input>
+          <input className='password' type='password' placeholder='Password' value={password} onChange={event => setPassword(event.target.value)}></input>
+          <div className='below-fields'>
+            <span>{ error }</span>
+            <button type='submit'>Sign In</button>
+          </div>
+        </form>
         <span className='sign-up'>No account yet? <span className='underlined' onClick={() => signUp()}>Sign up</span> instead</span>
         <span className='forgot'><span className='underlined' onClick={() => forgotPassword()}>I forgot my password</span></span>
       </div>

@@ -7,71 +7,68 @@ let mainWindow;
 let popUpWindow;
 let tray;
 
-let signedIn = false;
-
 function initializeApp() {
   if (!tray) {
     tray = new Tray(path.join(app.getAppPath(), 'public/smallLogoX32.ico'));
     tray.setToolTip('ScribeAI');
     tray.setTitle('ScribeAI');
     tray.setContextMenu(Menu.buildFromTemplate([
-      { label: 'Show', click: () => signedIn ? createMainWindow() : createSignInWindow() },
-      { label: 'Exit', click: () => app.quit() }
+      { label: 'Show', click: () => mainWindow.show() },
+      { label: 'Exit', click: () => app.exit() }
     ]));
   }
-  signedIn ? createMainWindow() : createSignInWindow();
+  createWindow();
+  createPopUp();
+  globalShortcut.register('CommandOrControl+Shift+Space', () => popUpWindow.show());
 }
 
-function createWindow(route) {
-  BrowserWindow.getAllWindows().forEach(window => window.close());
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    resizable: false,
-    icon: path.join(app.getAppPath(), 'public/smallLogoX32.ico'),
-    webPreferences: {
-      sandbox: false,
-      preload: path.join(app.getAppPath(), 'public/preload.js')
-    }
-  });
-  mainWindow.removeMenu();
-  mainWindow.loadURL(isDev ? `http://localhost:3000/${route}` : `file://${path.join(__dirname, `../build/index.html#/${route}`)}`);
-
-  if (isDev) mainWindow.webContents.openDevTools();
-}
-
-function createSignInWindow() {
-  createWindow('sign-in');
-  globalShortcut.unregister('CommandOrControl+Shift+Space');
-}
-
-function createMainWindow() {
-  createWindow('main');
-  globalShortcut.register('CommandOrControl+Shift+Space', () => createPopUp());
+function createWindow() {
+  if (!mainWindow) {
+    mainWindow = new BrowserWindow({
+      width: 800,
+      height: 600,
+      resizable: false,
+      icon: path.join(app.getAppPath(), 'public/smallLogoX32.ico'),
+      webPreferences: {
+        sandbox: false,
+        preload: path.join(app.getAppPath(), 'public/preload.js')
+      }
+    }).addListener('close', event => {
+      mainWindow.hide();
+      event.preventDefault();
+    });
+    mainWindow.removeMenu();
+    mainWindow.loadURL(isDev ? `http://localhost:3000/main` : `file://${path.join(__dirname, `../build/index.html#/main`)}`);
+  
+    if (isDev) mainWindow.webContents.openDevTools();
+  }
 }
 
 function createPopUp() {
-  if (popUpWindow) popUpWindow.close();
-  popUpWindow = new BrowserWindow({
-    x: screen.getCursorScreenPoint().x,
-    y: screen.getCursorScreenPoint().y,
-    height: 200,
-    width: 200,
-    useContentSize: true,
-    movable: false,
-    resizable: false,
-    skipTaskbar: true,
-    frame: false,
-    focusable: false,
-    alwaysOnTop: true,
-    hasShadow: false,
-    webPreferences: {
-      sandbox: false,
-      preload: path.join(app.getAppPath(), 'public/preload.js')
-    }
-  });
-  popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../build/index.html#/pop-up')}`); 
-  if (isDev) popUpWindow.webContents.openDevTools();
+  if (!popUpWindow) {
+    popUpWindow = new BrowserWindow({
+      x: screen.getCursorScreenPoint().x,
+      y: screen.getCursorScreenPoint().y,
+      height: 200,
+      width: 200,
+      useContentSize: true,
+      movable: false,
+      resizable: false,
+      skipTaskbar: true,
+      frame: false,
+      focusable: false,
+      alwaysOnTop: true,
+      fullscreenable: false,
+      hasShadow: false,
+      show: false,
+      webPreferences: {
+        sandbox: false,
+        preload: path.join(app.getAppPath(), 'public/preload.js')
+      }
+    }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y));
+    popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../build/index.html#/pop-up')}`); 
+    if (isDev) popUpWindow.webContents.openDevTools();
+  }
 }
 
 async function getSelectedText() {
@@ -96,13 +93,4 @@ app.on('window-all-closed', event => event.preventDefault());
 
 ipcMain.handle('get-selected-text', async () => await getSelectedText());
 
-ipcMain.handle('sign-in', () => {
-  signedIn = true;
-  mainWindow.close();
-  createMainWindow();
-});
-ipcMain.handle('sign-out', () => {
-  signedIn = false;
-  mainWindow.close();
-  createSignInWindow();
-});
+ipcMain.handle('close-pop-up', () => popUpWindow.hide());
