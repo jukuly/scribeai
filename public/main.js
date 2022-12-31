@@ -63,6 +63,7 @@ function createPopUp() {
       fullscreenable: false,
       hasShadow: false,
       show: false,
+      transparent: true,
       webPreferences: {
         sandbox: false,
         preload: path.join(app.getAppPath(), 'public/preload.js')
