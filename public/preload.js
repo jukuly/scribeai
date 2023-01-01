@@ -3,14 +3,14 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld(
   'api', {
       send(channel, data) {
-        let validChannels = ['main'];
+        let validChannels = [];
 
         if (validChannels.includes(channel)) {
-          ipcRenderer.send(channel, data);
+          ipcRenderer.sendSync(channel, data);
         }
       },
       receive(channel, func) {
-        let validChannels = ['main'];
+        let validChannels = ['selected-text'];
         if (validChannels.includes(channel)) {
           ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
@@ -18,8 +18,8 @@ contextBridge.exposeInMainWorld(
       async closePopUp() {
         return await ipcRenderer.invoke('close-pop-up');
       },
-      async getSelectedText() {
-        return await ipcRenderer.invoke('get-selected-text');
+      setPopUpSize(x, y) {
+        return ipcRenderer.invoke('set-pop-up-size', [x, y]);
       }
   }
 );

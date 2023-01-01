@@ -1,17 +1,20 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import './popUp.scss';
-
+ 
 export function PopUp({user}) {
   const [selectedText, setSelectedText] = useState('');
+  const ref = useRef(null);
 
-  async function getSelectedText() {
-    setSelectedText(await window.api.getSelectedText());
-  }
+  window.api.receive('selected-text', text => setSelectedText(text));
+
+  useEffect(() => {
+    if (ref.current) window.api.setPopUpSize(ref.current.clientWidth, ref.current.clientHeight);
+    if (ref.current) console.log(ref.current.clientWidth + ', ' + ref.current.clientHeight)
+  });
 
   return (
     user ?
-    <div className="signed-in">
-      <button onClick={async () => getSelectedText()}>Get selected text</button>
+    <div className="signed-in" ref={ref}>
       <p>{selectedText}</p>
     </div>
     : 
