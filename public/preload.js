@@ -15,6 +15,12 @@ contextBridge.exposeInMainWorld(
           ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
       },
+      removeListener(channel, func) {
+        let validChannels = ['selected-text', 'api-response'];
+        if (validChannels.includes(channel)) {
+          ipcRenderer.off(channel, (event, ...args) => func(...args));
+        }
+      },
       async closePopUp() {
         return await ipcRenderer.invoke('close-pop-up');
       },

@@ -24,19 +24,24 @@ function initializeApp() {
   }
   createWindow();
   createPopUp();
-  globalShortcut.register('CommandOrControl+Shift+Space', () => shortcut());
+  globalShortcut.register('CommandOrControl+Tab+q', () => shortcut());
 }
 
 async function shortcut() {
-  createPopUpLoading();
+  globalShortcut.unregister('CommandOrControl+Tab+q');
+  popUpWindow.hide();
+  if (!popUpLoading) createPopUpLoading();
   const text = await getSelectedText(); 
-  createPopUp();
+  if (!popUpWindow) createPopUp();
   popUpWindow.webContents.send('selected-text', text);
   if (popUpLoading) {
     popUpLoading.close();
     popUpLoading = null;
   }
   popUpWindow.show();
+  if (!globalShortcut.isRegistered('CommandOrControl+Tab+q')) {
+    globalShortcut.register('CommandOrControl+Tab+q', () => shortcut());
+  }
 }
 
 function createWindow() {
@@ -74,7 +79,6 @@ function createPopUp() {
       frame: false,
       alwaysOnTop: true,
       fullscreenable: false,
-      hasShadow: false,
       show: false,
       transparent: true,
       webPreferences: {
@@ -82,8 +86,7 @@ function createPopUp() {
         preload: path.join(app.getAppPath(), 'public/preload.js')
       }
     }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y))
-      .addListener('blur', () => popUpWindow.hide())
-      .addListener('hide', () => globalShortcut.register('CommandOrControl+Shift+Space', () => shortcut()));
+      .addListener('blur', () => popUpWindow.hide());
     popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../build/index.html#/pop-up')}`); 
 
     if (isDev) popUpWindow.webContents.openDevTools();
@@ -111,7 +114,6 @@ function createPopUpLoading() {
         preload: path.join(app.getAppPath(), 'public/preload.js')
       }
     });
-    globalShortcut.unregister('CommandOrControl+Shift+Space');
     popUpLoading.loadURL(isDev ? 'http://localhost:3000/pop-up-loading' : `file://${path.join(__dirname, '../build/index.html#/pop-up-loading')}`); 
   }
 }
@@ -210,11 +212,11 @@ async function babbage(prompt, temperature) {
 }
 
 ipcMain.handle('complete', (event, text) => {
-  babbage('Finish this sentence.\n\n' + text, 0.3);
+  babbage('Finish this sentence.\n\n' + text, 0.4);
 });
 
 ipcMain.handle('complete-w-context', (event, [text, context]) => {
-  babbage('Finish this sentence using this context: ' + context + '\n\n' + text, 0.3);
+  babbage('Finish this sentence using this context: ' + context + '\n\n' + text, 0.4);
 });
 
 ipcMain.handle('translate', (event, [text, language]) => {
