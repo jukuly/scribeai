@@ -127,7 +127,7 @@ ipcMain.handle('write-text', (event, text) => writeText(text));
 /////////////////////////////
 
 const configuration = new Configuration({
-  apiKey: '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'
+  apiKey: 'Your OpenAI API Key'
 });
 const openai = new OpenAIApi(configuration);
 
