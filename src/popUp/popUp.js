@@ -36,7 +36,6 @@ export function PopUp() {
   useEffect(() => {
     window.api.receive('selected-text', selectedTextListener);
     window.api.receive('api-response', apiResponseListener);
-    console.log(window.api.get('selected-text'));
 
     return () => {
       window.api.removeListener('selected-text');
