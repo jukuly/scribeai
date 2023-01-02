@@ -1,7 +1,9 @@
 const { app, BrowserWindow, Tray, Menu, globalShortcut, clipboard, screen, ipcMain } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
-const { sendCombination } = require('node-key-sender');
+const { sendCombination, sendKeys } = require('node-key-sender');
+
+const { Configuration, OpenAIApi } = require('openai');
 
 const firstInstance = app.requestSingleInstanceLock();
 
@@ -22,16 +24,19 @@ function initializeApp() {
   }
   createWindow();
   createPopUp();
-  globalShortcut.register('CommandOrControl+Shift+Space', async () => {
-    createPopUpLoading();
-    const text = await getSelectedText(); 
-    await popUpWindow.webContents.send('selected-text', text);
-    if (popUpLoading) {
-      popUpLoading.close();
-      popUpLoading = null;
-    }
-    popUpWindow.show();
-  });
+  globalShortcut.register('CommandOrControl+Shift+Space', () => shortcut());
+}
+
+async function shortcut() {
+  createPopUpLoading();
+  const text = await getSelectedText(); 
+  createPopUp();
+  popUpWindow.webContents.send('selected-text', text);
+  if (popUpLoading) {
+    popUpLoading.close();
+    popUpLoading = null;
+  }
+  popUpWindow.show();
 }
 
 function createWindow() {
@@ -61,8 +66,8 @@ function createPopUp() {
     popUpWindow = new BrowserWindow({
       x: screen.getCursorScreenPoint().x,
       y: screen.getCursorScreenPoint().y,
-      height: 75,
-      width: 175,
+      width: 0,
+      height: 0,
       movable: false,
       resizable: false,
       skipTaskbar: true,
@@ -72,25 +77,13 @@ function createPopUp() {
       hasShadow: false,
       show: false,
       transparent: true,
-      backgroundColor: '#ffffff',
       webPreferences: {
         sandbox: false,
         preload: path.join(app.getAppPath(), 'public/preload.js')
       }
     }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y))
       .addListener('blur', () => popUpWindow.hide())
-      .addListener('hide', () => {
-        globalShortcut.register('CommandOrControl+Shift+Space', async () => {
-          createPopUpLoading();
-          const text = await getSelectedText(); 
-          await popUpWindow.webContents.send('selected-text', text);
-          if (popUpLoading) {
-            popUpLoading.close();
-            popUpLoading = null;
-          }
-          popUpWindow.show();
-        });
-      });
+      .addListener('hide', () => globalShortcut.register('CommandOrControl+Shift+Space', () => shortcut()));
     popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../build/index.html#/pop-up')}`); 
 
     if (isDev) popUpWindow.webContents.openDevTools();
@@ -136,6 +129,11 @@ async function getSelectedText() {
   return result;
 }
 
+function writeText(text) {
+  popUpWindow.blur();
+  //sendKeys(text.split(''));
+}
+
 if (!firstInstance) {
   app.exit()
 } else {
@@ -155,3 +153,76 @@ app.on('window-all-closed', event => event.preventDefault());
 ipcMain.handle('close-pop-up', () => popUpWindow.hide());
 
 ipcMain.handle('set-pop-up-size', (event, [x, y]) => popUpWindow.setSize(x, y));
+
+ipcMain.handle('write-text', (event, text) => writeText(text));
+
+/////////////////////////////
+//Communication with openAI//
+/////////////////////////////
+
+const configuration = new Configuration({
+  apiKey: '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'
+});
+const openai = new OpenAIApi(configuration);
+
+async function davinci(prompt, temperature) {
+  const result = await openai.createCompletion({
+    model: 'text-davinci-003',
+    prompt: prompt,
+    temperature: temperature,
+    max_tokens: 64,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+  });
+  const { choices } = { ...result.data };
+  popUpWindow.webContents.send('api-response', choices[0].text);
+}
+
+async function curie(prompt, temperature) {
+  const result = await openai.createCompletion({
+    model: 'text-curie-001',
+    prompt: prompt,
+    temperature: temperature,
+    max_tokens: 64,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    stop: ['.']
+  });
+  const { choices } = { ...result.data };
+  popUpWindow.webContents.send('api-response', choices[0].text);
+}
+
+async function babbage(prompt, temperature) {
+  const result = await openai.createCompletion({
+    model: 'text-babbage-001',
+    prompt: prompt,
+    temperature: temperature,
+    max_tokens: 64,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    stop: ['.']
+  });
+  const { choices } = { ...result.data };
+  popUpWindow.webContents.send('api-response', choices[0].text);
+}
+
+ipcMain.handle('complete', (event, text) => {
+  babbage('Finish this sentence.\n\n' + text, 0.3);
+});
+
+ipcMain.handle('complete-w-context', (event, [text, context]) => {
+  babbage('Finish this sentence using this context: ' + context + '\n\n' + text, 0.3);
+});
+
+ipcMain.handle('translate', (event, [text, language]) => {
+  if (text[text.length-1] !== '.') text += '.';
+  curie('Translate this text to ' + language + '.\n\n' + text, 0);
+});
+
+ipcMain.handle('rephrase', (event, text) => {
+  if (text[text.length-1] !== '.') text += '.';
+  davinci('Rephrase this text.\n\n' + text, 1);
+});

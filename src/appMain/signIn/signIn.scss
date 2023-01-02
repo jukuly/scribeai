@@ -43,7 +43,7 @@
     }
   }
 
-  button {
+  .sign-in-button {
     background-color: rgb(255, 255, 255);
     padding: 0.5rem 0.75rem 0.5rem 0.75rem;
     border: solid 1px #ffffff;
@@ -51,10 +51,10 @@
     cursor: pointer;
     transition: border-color 150ms;
   }
-  button:hover {
+  .sign-in-button:hover {
     border: solid 1px #119da4;
   }
-  button:active {
+  .sign-in-button:active {
     border: solid 2px #119da4;
     padding: calc(0.5rem - 1px) calc(0.75rem - 1px) calc(0.5rem - 1px) calc(0.75rem - 1px);
   }

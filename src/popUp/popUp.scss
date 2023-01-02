@@ -1,4 +1,70 @@
 .signed-in {
+  display: inline-block;
+  width: 500px;
+  border-radius: 5px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px;
+  .result {
+    max-width: 500px;
+    padding: 2px 5px 2px 5px;
+    border-radius: 5px;
+    width: 100%;
+    transition: 150ms;
+  }
+  .result.clickable {
+    cursor: pointer;
+  }
+  .result.clickable:hover {
+    background-color: #eeeeee;
+  }
+  .result.clickable:active {
+    background-color: #dddddd;
+  }
+  .buttons {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    button {
+      flex: 1;
+    }
+  }  
+}
+
+.not-signed-in {
   height: 100px;
-  width: 150px;
+  width: 200px;
+  border-radius: 5px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 5px 10px 5px;
+  p {
+    text-align: center;
+  }
+  button {
+    margin-top: 5px;
+  }
+}
+
+.close-pop-up, .signed-in button {
+  background-color: #eeeeee;
+  padding: 0.5rem 0.75rem 0.5rem 0.75rem;
+  border: solid 1px #eeeeee;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 150ms;
+}
+.close-pop-up:hover, .signed-in button:hover {
+  border: solid 1px #119da4;
+}
+.close-pop-up:active, .signed-in button:active {
+  color: #ffffff;
+  background-color: #119da4;
 }

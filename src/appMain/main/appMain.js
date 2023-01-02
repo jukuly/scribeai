@@ -8,8 +8,8 @@ export function AppMain() {
   }
 
   return (
-    <div className="app">
-      <button onClick={() => signOut()}>Sign out</button>
+    <div className='app'>
+      <button className='sign-out' onClick={() => signOut()}>Sign out</button>
     </div> 
   );
 }

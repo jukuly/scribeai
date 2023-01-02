@@ -1,4 +1,23 @@
 .app {
   background-image: linear-gradient(to bottom right, #3066be, #80ded9 60%);
   height: 100vh;
+  display: grid;
+  place-items: center;
+
+  .sign-out {
+    background-color: rgb(255, 255, 255);
+    padding: 0.5rem 0.75rem 0.5rem 0.75rem;
+    border: solid 1px #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 150ms;
+  }
+  .sign-out:hover {
+    border: solid 1px #119da4;
+  }
+  .sign-out:active {
+    border: solid 2px #119da4;
+    padding: calc(0.5rem - 1px) calc(0.75rem - 1px) calc(0.5rem - 1px) calc(0.75rem - 1px);
+  }
 }
+

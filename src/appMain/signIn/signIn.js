@@ -43,7 +43,7 @@ export function SignIn() {
           <input className='password' type='password' placeholder='Password' value={password} onChange={event => setPassword(event.target.value)}></input>
           <div className='below-fields'>
             <span>{ error }</span>
-            <button type='submit'>Sign In</button>
+            <button className='sign-in-button' type='submit'>Sign In</button>
           </div>
         </form>
         <span className='sign-up'>No account yet? <span className='underlined' onClick={() => signUp()}>Sign up</span> instead</span>
