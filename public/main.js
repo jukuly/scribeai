@@ -1,7 +1,7 @@
 const { app, BrowserWindow, Tray, Menu, globalShortcut, clipboard, screen, ipcMain } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
-const { sendCombination, sendKeys } = require('node-key-sender');
+const { sendCombination } = require('node-key-sender');
 
 const { Configuration, OpenAIApi } = require('openai');
 
@@ -24,24 +24,15 @@ function initializeApp() {
   }
   createWindow();
   createPopUp();
-  globalShortcut.register('CommandOrControl+Tab+q', () => shortcut());
+  globalShortcut.register('CommandOrControl+Shift+Space', () => shortcut());
 }
 
 async function shortcut() {
-  globalShortcut.unregister('CommandOrControl+Tab+q');
-  popUpWindow.hide();
-  if (!popUpLoading) createPopUpLoading();
-  const text = await getSelectedText(); 
   if (!popUpWindow) createPopUp();
-  popUpWindow.webContents.send('selected-text', text);
-  if (popUpLoading) {
-    popUpLoading.close();
-    popUpLoading = null;
-  }
+  getSelectedText()
+    .then(text => popUpWindow.webContents.send('selected-text', text)); 
+  
   popUpWindow.show();
-  if (!globalShortcut.isRegistered('CommandOrControl+Tab+q')) {
-    globalShortcut.register('CommandOrControl+Tab+q', () => shortcut());
-  }
 }
 
 function createWindow() {
@@ -73,11 +64,11 @@ function createPopUp() {
       y: screen.getCursorScreenPoint().y,
       width: 0,
       height: 0,
-      movable: false,
       resizable: false,
       skipTaskbar: true,
       frame: false,
       alwaysOnTop: true,
+      focusable: false,
       fullscreenable: false,
       show: false,
       transparent: true,
@@ -85,36 +76,10 @@ function createPopUp() {
         sandbox: false,
         preload: path.join(app.getAppPath(), 'public/preload.js')
       }
-    }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y))
-      .addListener('blur', () => popUpWindow.hide());
+    }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y));
     popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../build/index.html#/pop-up')}`); 
 
     if (isDev) popUpWindow.webContents.openDevTools();
-  }
-}
-
-function createPopUpLoading() {
-  if (!popUpLoading) {
-    popUpLoading = new BrowserWindow({
-      x: screen.getCursorScreenPoint().x,
-      y: screen.getCursorScreenPoint().y,
-      height: 50,
-      width: 50,
-      movable: false,
-      resizable: false,
-      skipTaskbar: true,
-      frame: false,
-      alwaysOnTop: true,
-      fullscreenable: false,
-      hasShadow: false,
-      transparent: true,
-      focusable: false,
-      webPreferences: {
-        sandbox: false,
-        preload: path.join(app.getAppPath(), 'public/preload.js')
-      }
-    });
-    popUpLoading.loadURL(isDev ? 'http://localhost:3000/pop-up-loading' : `file://${path.join(__dirname, '../build/index.html#/pop-up-loading')}`); 
   }
 }
 
@@ -131,13 +96,12 @@ async function getSelectedText() {
   return result;
 }
 
-function writeText(text) {
-  popUpWindow.blur();
-  //sendKeys(text.split(''));
+async function writeText(text) {
+  clipboard.writeText(text);
 }
 
 if (!firstInstance) {
-  app.exit()
+  app.exit();
 } else {
   app.on('second-instance', () => {
     if (mainWindow) {
@@ -172,7 +136,7 @@ async function davinci(prompt, temperature) {
     model: 'text-davinci-003',
     prompt: prompt,
     temperature: temperature,
-    max_tokens: 64,
+    max_tokens: 128,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
@@ -186,11 +150,10 @@ async function curie(prompt, temperature) {
     model: 'text-curie-001',
     prompt: prompt,
     temperature: temperature,
-    max_tokens: 64,
+    max_tokens: 128,
     top_p: 1,
     frequency_penalty: 0,
-    presence_penalty: 0,
-    stop: ['.']
+    presence_penalty: 0
   });
   const { choices } = { ...result.data };
   popUpWindow.webContents.send('api-response', choices[0].text);

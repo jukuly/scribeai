@@ -21,6 +21,9 @@ contextBridge.exposeInMainWorld(
           ipcRenderer.off(channel, (event, ...args) => func(...args));
         }
       },
+      get(channel) {
+        return ipcRenderer.listeners(channel);
+      },
       async closePopUp() {
         return await ipcRenderer.invoke('close-pop-up');
       },

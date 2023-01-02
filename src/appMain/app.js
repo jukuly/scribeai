@@ -13,7 +13,7 @@ export function App() {
     <Router>
       <Routes>
         <Route path="/main" element={user ? <AppMain /> : <SignIn />} />
-        <Route path="/pop-up" element={<PopUp user={user} />} />
+        <Route path="/pop-up" element={<PopUp />} />
         <Route path="/pop-up-loading" element={<Loading />} />
       </Routes>
     </Router>
