@@ -3,8 +3,6 @@ const path = require('path');
 const isDev = require('electron-is-dev');
 const { sendCombination } = require('node-key-sender');
 
-const { Configuration, OpenAIApi } = require('openai');
-
 const firstInstance = app.requestSingleInstanceLock();
 
 let mainWindow;
@@ -121,73 +119,3 @@ ipcMain.handle('close-pop-up', () => popUpWindow.hide());
 ipcMain.handle('set-pop-up-size', (event, [x, y]) => popUpWindow.setSize(x, y));
 
 ipcMain.handle('write-text', (event, text) => writeText(text));
-
-/////////////////////////////
-//Communication with openAI//
-/////////////////////////////
-
-const configuration = new Configuration({
-  apiKey: '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'
-});
-const openai = new OpenAIApi(configuration);
-
-async function davinci(prompt, temperature) {
-  const result = await openai.createCompletion({
-    model: 'text-davinci-003',
-    prompt: prompt,
-    temperature: temperature,
-    max_tokens: 128,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
-  const { choices } = { ...result.data };
-  popUpWindow.webContents.send('api-response', choices[0].text);
-}
-
-async function curie(prompt, temperature) {
-  const result = await openai.createCompletion({
-    model: 'text-curie-001',
-    prompt: prompt,
-    temperature: temperature,
-    max_tokens: 128,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0
-  });
-  const { choices } = { ...result.data };
-  popUpWindow.webContents.send('api-response', choices[0].text);
-}
-
-async function babbage(prompt, temperature) {
-  const result = await openai.createCompletion({
-    model: 'text-babbage-001',
-    prompt: prompt,
-    temperature: temperature,
-    max_tokens: 64,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    stop: ['.']
-  });
-  const { choices } = { ...result.data };
-  popUpWindow.webContents.send('api-response', choices[0].text);
-}
-
-ipcMain.handle('complete', (event, text) => {
-  babbage('Finish this sentence.\n\n' + text, 0.4);
-});
-
-ipcMain.handle('complete-w-context', (event, [text, context]) => {
-  babbage('Finish this sentence using this context: ' + context + '\n\n' + text, 0.4);
-});
-
-ipcMain.handle('translate', (event, [text, language]) => {
-  if (text[text.length-1] !== '.') text += '.';
-  curie('Translate this text to ' + language + '.\n\n' + text, 0);
-});
-
-ipcMain.handle('rephrase', (event, text) => {
-  if (text[text.length-1] !== '.') text += '.';
-  davinci('Rephrase this text.\n\n' + text, 1);
-});

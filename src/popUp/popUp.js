@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loading } from '../loading/loading';
-import { authInstance } from '../firebase';
+import { authInstance, functionsInstance } from '../firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
 import './popUp.scss';
+import { httpsCallable } from 'firebase/functions';
+
+const openaiCall = httpsCallable(functionsInstance, 'openaiCall');
  
 export function PopUp() {
   const [user] = useAuthState(authInstance);
@@ -26,7 +29,7 @@ export function PopUp() {
     console.log('selected-text: ' + text);
   }
 
-  function apiResponseListener(text) {
+  function apiResponse(text) {
     setLoading(false);
     if (text !== '') setResults(results => [...results, text.replace(/^\s+|\s+$/g, '')]);
     setValid(true);
@@ -35,11 +38,9 @@ export function PopUp() {
 
   useEffect(() => {
     window.api.receive('selected-text', selectedTextListener);
-    window.api.receive('api-response', apiResponseListener);
 
     return () => {
       window.api.removeListener('selected-text');
-      window.api.removeListener('api-response');
     };
   }, []);
 
@@ -63,19 +64,31 @@ export function PopUp() {
     return textToSend.trim();
   }
 
-  function rephrase(text = null) {
+  async function rephrase(text = null) {
     text = apiCall(text);
     if (!text) return;
-    window.api.rephrase(text);
+    apiResponse((await openaiCall(
+      { 
+        model: 'davinci',
+        prompt: 'Rephrase this text.\n\n' + text,
+        temperature: 1  
+      }
+    )).data.response);
   }
 
-  function translate(language = 'french', text = null) {
+  async function translate(language = 'french', text = null) {
     text = apiCall(text);
     if (!text) return;
-    window.api.translate(text, language);
+    apiResponse((await openaiCall(
+      { 
+        model: 'curie',
+        prompt: 'Translate this text to ' + language + '.\n\n' + text,
+        temperature: 0  
+      }
+    )).data.response);
   }
 
-  function complete(text = null) {
+  async function complete(text = null) {
     text = apiCall(text);
     if (!text) return;
     if (text.includes('.') || text.includes('!') | text.includes('?')) {
@@ -90,12 +103,24 @@ export function PopUp() {
       }
       if (context && sentence) {
         for (let i = 0; i < 3; i++) {
-          window.api.completeWContext(sentence, context);
+          apiResponse((await openaiCall(
+            { 
+              model: 'babbage',
+              prompt: 'Finish this sentence using this context: ' + context + '\n\n' + text,
+              temperature: 0.4  
+            }
+          )).data.response);
         }
       }
     } else {
       for (let i = 0; i < 3; i++) {
-        window.api.complete(text);
+        apiResponse((await openaiCall(
+          { 
+            model: 'babbage',
+            prompt: 'Finish this sentence.\n\n' + text,
+            temperature: 0.4 
+          }
+        )).data.response);
       }
     }
   }
