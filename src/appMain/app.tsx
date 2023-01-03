@@ -5,6 +5,7 @@ import { PopUp } from "../popUp/popUp";
 import { Loading } from "../loading/loading";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import React from "react";
 
 export function App() {
   const [user] = useAuthState(authInstance);

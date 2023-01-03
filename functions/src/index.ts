@@ -9,9 +9,7 @@ export const newUser = functions.auth.user().onCreate((user) => {
     email: user.email,
     preferences: {
       translationLanguage: 'english',
-      preferedFeature: 'completion',
       writingStyle: 'formal',
-      overlay: true,
     },
     expireDate: admin.firestore.FieldValue.serverTimestamp(),
   });
@@ -20,11 +18,11 @@ export const newUser = functions.auth.user().onCreate((user) => {
 export const openaiCall = functions.https.onCall(async (data, context) => {
   switch (data.model) {
     case 'davinci':
-      return {response: await davinci(data.prompt, data.temperature)};
+      return {response: await davinci(data.prompt, data.temperature, data.maxTokens)};
     case 'curie':
-      return {response: await curie(data.prompt, data.temperature)};
+      return {response: await curie(data.prompt, data.temperature, data.maxTokens)};
     case 'babbage':
-      return {response: await babbage(data.prompt, data.temperature)};
+      return {response: await babbage(data.prompt, data.temperature, data.maxTokens)};
     default:
       return null;
   }

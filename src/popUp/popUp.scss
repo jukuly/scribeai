@@ -45,13 +45,16 @@
     width: 100%;
     gap: 5px;
     button {
-      flex: 1;
-    }
-    .refresh, .close {
+      aspect-ratio: 1 / 1;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      flex: 0.15;
+    }
+    .action {
+      flex: 1;
+    }
+    .action:focus {
+      outline: none;
     }
   }  
 }
@@ -75,7 +78,7 @@
   }
 }
 
-.close-pop-up, .signed-in button {
+.close-pop-up, .signed-in button, .action {
   -webkit-app-region: no-drag;
   background-color: #eeeeee;
   padding: 0.5rem 0.75rem 0.5rem 0.75rem;
@@ -84,7 +87,7 @@
   cursor: pointer;
   transition: 150ms;
 }
-.close-pop-up:hover, .signed-in button:hover {
+.close-pop-up:hover, .signed-in button:hover, .action:hover {
   border: solid 1px #119da4;
 }
 .close-pop-up:active, .signed-in button:active {

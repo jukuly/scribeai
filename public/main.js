@@ -7,7 +7,6 @@ const firstInstance = app.requestSingleInstanceLock();
 
 let mainWindow;
 let popUpWindow;
-let popUpLoading;
 let tray;
 
 function initializeApp() {

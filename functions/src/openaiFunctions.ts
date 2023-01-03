@@ -5,26 +5,12 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-export async function davinci(prompt: string, temperature: number): Promise<string | undefined> {
+export async function davinci(prompt: string, temperature: number, maxTokens: number = 128): Promise<string | undefined> {
   const result = await openai.createCompletion({
     model: 'text-davinci-003',
     prompt: prompt,
     temperature: temperature,
-    max_tokens: 128,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
-  const { choices } = { ...result.data };
-  return choices[0].text;
-}
-
-export async function curie(prompt: string, temperature: number): Promise<string | undefined> {
-  const result = await openai.createCompletion({
-    model: 'text-curie-001',
-    prompt: prompt,
-    temperature: temperature,
-    max_tokens: 128,
+    max_tokens: maxTokens,
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0
@@ -33,16 +19,29 @@ export async function curie(prompt: string, temperature: number): Promise<string
   return choices[0].text;
 }
 
-export async function babbage(prompt: string, temperature: number): Promise<string | undefined> {
+export async function curie(prompt: string, temperature: number, maxTokens: number = 128): Promise<string | undefined> {
+  const result = await openai.createCompletion({
+    model: 'text-curie-001',
+    prompt: prompt,
+    temperature: temperature,
+    max_tokens: maxTokens,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0
+  });
+  const { choices } = { ...result.data };
+  return choices[0].text;
+}
+
+export async function babbage(prompt: string, temperature: number, maxTokens: number = 128): Promise<string | undefined> {
   const result = await openai.createCompletion({
     model: 'text-babbage-001',
     prompt: prompt,
     temperature: temperature,
-    max_tokens: 64,
+    max_tokens: maxTokens,
     top_p: 1,
     frequency_penalty: 0,
-    presence_penalty: 0,
-    stop: ['.']
+    presence_penalty: 0
   });
   const { choices } = { ...result.data };
   return choices[0].text;
