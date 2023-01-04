@@ -29,7 +29,7 @@ async function shortcut() {
   getSelectedText()
     .then(text => popUpWindow.webContents.send('selected-text', text)); 
   
-  popUpWindow.show();
+  popUpWindow.showInactive();
 }
 
 function createWindow() {
@@ -65,7 +65,7 @@ function createPopUp() {
       skipTaskbar: true,
       frame: false,
       alwaysOnTop: true,
-      focusable: false,
+      //focusable: false,
       fullscreenable: false,
       show: false,
       transparent: true,

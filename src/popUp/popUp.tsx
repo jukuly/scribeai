@@ -9,12 +9,15 @@ import React from 'react';
 const openaiCall = httpsCallable(functionsInstance, 'openaiCall');
  
 export function PopUp() {
-  const [user] = useAuthState(authInstance);
-  const [selectedText, setSelectedText] = useState('');
-  const [results, setResults] = useState(['']);
+  const [user] = useAuthState(authInstance); //User currently signed in
+  const [selectedText, setSelectedText] = useState<string>(''); //Text selected by the user
+  const [results, setResults] = useState<string[]>([]); //Results from API
+  const [keywords, setKeywords] = useState<Set<string>>(new Set()); //Keywords selected
+  const [keyword, setKeyword] = useState<string>(''); //Current keyword being typed
 
-  const [valid, setValid] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [valid, setValid] = useState<boolean>(false); //If the request is valid
+  const [loading, setLoading] = useState<boolean>(true); //True when waiting for response from API
+  const [showKeywords, setShowKeywords] = useState<boolean>(true); //Whether of not to show the keyword field
 
   const win = useRef(null); //Ref to the screen to adjust it's size dynamically
   const select = useRef(null); //Ref to the select function menu
@@ -42,20 +45,12 @@ export function PopUp() {
       setLoading(false);
       setValid(false);
       setResults(['Make sure the selected text doesn\'t go over 500 characters']);
-      setTimeout(() => closePopUp(), 3000);
     } else if (authInstance.currentUser) {
       setSelectedText(text);
       const current = select.current ? parseInt((select.current! as HTMLSelectElement).value) : 0;
       functions[current](text);
     }
     console.log('selected-text: ' + text);
-  }
-
-  function apiTimeout(): void {
-    setLoading(false);
-    setValid(false);
-    setResults(['Unable to get a response from API']);
-    setTimeout(() => closePopUp(), 3000);
   }
 
   function apiResponse(text: string): void {
@@ -75,7 +70,6 @@ export function PopUp() {
       setLoading(false);
       setValid(false);
       setResults(['Start by highlighting some text']);
-      setTimeout(() => closePopUp(), 3000);
       return null;
     }
     setLoading(true);
@@ -88,17 +82,16 @@ export function PopUp() {
     async function complete(text: string | null = null): Promise<void> {
       text = apiCall(text);
       if (!text) return;
-      setTimeout(() => {
-        if (results.length === 0) {
-          apiTimeout();
-          return;
-        }
-      }, 10000);
       for (let i = 0; i < 3; i++) {
         apiResponse(((await openaiCall(
           { 
             model: 'curie',
-            prompt: 'Add to this text.\n\n' + text,
+            prompt: `Add to this text${keywords.size > 0 ? 
+              `using these keywords: ${Array.from(keywords).map((keyword, index) => 
+                index < keywords.size-1 ? 
+                `${keyword}, ` 
+                : `${keyword}.`)}`
+              : '.'}\n\n${text}`,
             temperature: 1,
             maxTokens: 16 
           }
@@ -112,8 +105,9 @@ export function PopUp() {
       apiResponse(((await openaiCall(
         {
           model: 'babbage',
-          prompt: 'Correct the grammar.\n\n' + 
-            ((text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : (text + '.')) + '\n\n',
+          prompt: `Correct the grammar.\n\n${
+            (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
+          }\n\n`,
           temperature: 0
         }
       )).data as ApiResponse).response);
@@ -125,8 +119,9 @@ export function PopUp() {
       apiResponse(((await openaiCall(
         { 
           model: 'davinci',
-          prompt: 'Rephrase this text.\n\n' + 
-            ((text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : (text + '.')) + '\n\n',
+          prompt: `Rephrase this text.\n\n${
+            (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
+          }\n\n`,
           temperature: 1  
         }
       )).data as ApiResponse).response);
@@ -138,8 +133,9 @@ export function PopUp() {
       apiResponse(((await openaiCall(
         { 
           model: 'curie',
-          prompt: 'Translate this text to ' + language + '.\n\n' + 
-            ((text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : (text + '.')) + '\n\n',
+          prompt: `Translate this text to ${language}.\n\n${
+            (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
+          }\n\n`,
           temperature: 0  
         }
       )).data as ApiResponse).response);
@@ -165,11 +161,30 @@ export function PopUp() {
   }
 
   function record(): void {
-
+    //TODO function that records every keystroke to make more accurate predictions, limits at 500 characters
   }
 
   function refresh(): void {
     functions[parseInt((select.current! as HTMLSelectElement).value)]();
+  }
+
+  function addKeyword(keyword: string): void {
+    keyword = keyword.trim();
+    if (keyword === '' || keywords.size >= 5) return;
+    setKeywords(keywords => {
+      const newSet = new Set(keywords);
+      newSet.add(keyword);
+      return newSet;
+    });
+    setKeyword('');
+  }
+
+  function removeKeyword(keyword: string): void {
+    setKeywords(keywords => {
+      const newSet = new Set(keywords);
+      newSet.delete(keyword);
+      return newSet;
+    });
   }
 
   ///////
@@ -198,7 +213,7 @@ export function PopUp() {
             )
           }
           <div className='buttons'>
-            <select className='action' ref={select}>
+            <select className='action' ref={select} onChange={() => setShowKeywords((select.current! as HTMLSelectElement).value === '0')}>
               <option value='0'>Complete</option>
               <option value='1'>Grammar</option>
               <option value='2'>Rephrase</option>
@@ -220,6 +235,31 @@ export function PopUp() {
               </span>
             </button>
           </div>
+          {
+            showKeywords  &&
+            <div className='keywords'>
+              {
+                Array.from(keywords).map((word, index) => 
+                  <span className='keyword' 
+                    onClick={() => removeKeyword(word as string)} key={index}>
+                    <>
+                      {word}
+                      <span className='material-symbols-outlined copy-icon'>
+                        close
+                      </span>
+                    </>
+                  </span>
+                )
+              }
+              <form onSubmit={event => {
+                event.preventDefault();
+                addKeyword(keyword);
+              }}>
+                <input className='add-keyword' type='text' placeholder='Keywords (max. 5)' value={keyword} 
+                  onChange={event => setKeyword(event.target.value)} maxLength={25}></input>
+              </form>
+            </div>
+          }
         </div>
         : 
         <div className='not-signed-in' ref={win}>

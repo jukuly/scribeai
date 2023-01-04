@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai';
 
 const configuration = new Configuration({
-  apiKey: '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'
+  apiKey: process.env.OPENAI_KEY
 });
 const openai = new OpenAIApi(configuration);
 
@@ -34,6 +34,7 @@ export async function curie(prompt: string, temperature: number, maxTokens: numb
 }
 
 export async function babbage(prompt: string, temperature: number, maxTokens: number = 128): Promise<string | undefined> {
+  if (maxTokens > 128) maxTokens = 128;
   const result = await openai.createCompletion({
     model: 'text-babbage-001',
     prompt: prompt,

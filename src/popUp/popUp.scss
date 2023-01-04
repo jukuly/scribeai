@@ -49,6 +49,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      padding: 0.5rem;
     }
     .action {
       flex: 1;
@@ -57,6 +58,29 @@
       outline: none;
     }
   }  
+}
+
+.keywords {
+  width: 100%;
+  .add-keyword {
+    cursor: text;
+    width: 100%;
+    
+  }
+  .add-keyword:focus {
+    outline: none;
+  }
+  .keyword {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    margin-right: 5px;
+    padding: 0.2rem 0.2rem 0.2rem 0.75rem;
+    span {
+      margin-left: 0.45rem;
+    }
+  }
 }
 
 .not-signed-in {
@@ -78,7 +102,7 @@
   }
 }
 
-.close-pop-up, .signed-in button, .action {
+.close-pop-up, .signed-in button, .action, .add-keyword, .keyword {
   -webkit-app-region: no-drag;
   background-color: #eeeeee;
   padding: 0.5rem 0.75rem 0.5rem 0.75rem;
@@ -87,7 +111,7 @@
   cursor: pointer;
   transition: 150ms;
 }
-.close-pop-up:hover, .signed-in button:hover, .action:hover {
+.close-pop-up:hover, .signed-in button:hover, .action:hover, .add-keyword:focus {
   border: solid 1px #119da4;
 }
 .close-pop-up:active, .signed-in button:active {
