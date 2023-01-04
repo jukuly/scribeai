@@ -1,3 +1,31 @@
-To run: npm run electron-serve
+##ScribeAI: An AI powered Writing Assistant
 
-To use the AI functionnality, you need to add an OpenAI API key in the main.js file (line 130)
+This is a AI Writing Assistant powered by the OpenAI API. It includes features such as text completion based on the context and keywords, translation, rephrasing and grammar correction. It is built using the Electron framework and the React library.
+
+Dependencies (npm packages):
+-electron
+-react
+-typescript
+-electron-is-dev
+-node-key-sender
+-sass
+-firebase (auth, firestore, functions)
+-react-firebase-hooks
+-react-router-dom
+-path
+
+Run: npm run electron-serve
+Build: npm run electron-build
+
+You're also gonna need an OpenAI API key and a firebase project.
+Then, you'll be able to setup two .env files, one in the ./functions directory and one in the root directory.
+
+The first one should contain the OpenAI API key: 
+  OPENAI_KEY=your_openai_api_key
+
+The second one should contain the firebase credentials: 
+  REACT_APP_FIREBASE_KEY=your_firebase_api_key
+  REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id
+  REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messagins_sender_id
+  REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
+  REACT_APP_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
