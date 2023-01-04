@@ -12,7 +12,7 @@ interface User {
 }
 
 export const newUser = functions.auth.user().onCreate((user) => {
-  return admin.firestore().collection('users').doc(user.uid).set({
+  return admin.firestore().doc(`users/${user.uid}`).set({
     expireDate: fieldValue.serverTimestamp()
   });
 });
