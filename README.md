@@ -26,8 +26,8 @@ The first one should contain the OpenAI API key: <br />
 `OPENAI_KEY=your_openai_api_key`
 
 The second one should contain the firebase credentials:  
-`REACT_APP_FIREBASE_KEY=your_firebase_api_key <br />
-REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id <br />
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messagins_sender_id <br />
-REACT_APP_FIREBASE_APP_ID=your_firebase_app_id <br />
-REACT_APP_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id`
+`REACT_APP_FIREBASE_KEY=your_firebase_api_key` <br />
+`REACT_APP_FIREBASE_PROJECT_ID=your_firebase_project_id` <br />
+`REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messagins_sender_id` <br />
+`REACT_APP_FIREBASE_APP_ID=your_firebase_app_id` <br />
+`REACT_APP_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id`
