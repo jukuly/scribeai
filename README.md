@@ -1,4 +1,4 @@
-##ScribeAI: An AI powered Writing Assistant
+## ScribeAI: An AI powered Writing Assistant
 
 This is a AI Writing Assistant powered by the OpenAI API. It includes features such as text completion based on the context and keywords, translation, rephrasing and grammar correction. It is built using the Electron framework and the React library.
 
@@ -16,6 +16,8 @@ Dependencies (npm packages):
 
 Run: npm run electron-serve
 Build: npm run electron-build
+
+Once the app is launched, you can highlight some text and use the shortcut: Ctrl+Shift+Space to open the writing assistant pop-up. Also, you can close the main window, the app will just be minimized in the system tray.
 
 You're also gonna need an OpenAI API key and a firebase project.
 Then, you'll be able to setup two .env files, one in the ./functions directory and one in the root directory.
