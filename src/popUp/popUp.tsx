@@ -41,7 +41,7 @@ export function PopUp() {
     if (text.length > 512) {
       setLoading(false);
       setValid(false);
-      setResults(['Make sure the selected text doesn\'t go over 512 characters']);
+      setResults(['Make sure the selected text doesn\'t go over 500 characters']);
       setTimeout(() => closePopUp(), 3000);
     } else if (authInstance.currentUser) {
       setSelectedText(text);
@@ -106,13 +106,27 @@ export function PopUp() {
       }
     },
 
+    async function grammar(text: string | null = null): Promise<void> {
+      text = apiCall(text);
+      if (!text) return;
+      apiResponse(((await openaiCall(
+        {
+          model: 'babbage',
+          prompt: 'Correct the grammar.\n\n' + 
+            ((text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : (text + '.')) + '\n\n',
+          temperature: 0
+        }
+      )).data as ApiResponse).response);
+    },
+
     async function rephrase(text: string | null = null): Promise<void> {
       text = apiCall(text);
       if (!text) return;
       apiResponse(((await openaiCall(
         { 
           model: 'davinci',
-          prompt: 'Rephrase this text.\n\n' + ((text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : (text + '.')),
+          prompt: 'Rephrase this text.\n\n' + 
+            ((text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : (text + '.')) + '\n\n',
           temperature: 1  
         }
       )).data as ApiResponse).response);
@@ -124,7 +138,8 @@ export function PopUp() {
       apiResponse(((await openaiCall(
         { 
           model: 'curie',
-          prompt: 'Translate this text to ' + language + '.\n\n' + ((text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : (text + '.')),
+          prompt: 'Translate this text to ' + language + '.\n\n' + 
+            ((text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : (text + '.')) + '\n\n',
           temperature: 0  
         }
       )).data as ApiResponse).response);

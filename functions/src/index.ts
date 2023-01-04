@@ -6,7 +6,6 @@ admin.initializeApp();
 
 export const newUser = functions.auth.user().onCreate((user) => {
   return admin.firestore().collection('users').doc(user.uid).set({
-    email: user.email,
     preferences: {
       translationLanguage: 'english',
       writingStyle: 'formal',
