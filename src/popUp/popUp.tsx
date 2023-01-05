@@ -54,6 +54,12 @@ export function PopUp() {
   }
 
   function apiResponse(text: string): void {
+    if (!text) {
+      setLoading(false);
+      setValid(false);
+      setResults(['An error occured while trying to reach the API']);
+      return;
+    }
     setLoading(false);
     if (text !== '') setResults(results => [...results, text.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ')]);
     setValid(true);
@@ -127,7 +133,7 @@ export function PopUp() {
       )).data as ApiResponse).response);
     },
   
-    async function translate(language: string = 'french', text: string | null = null): Promise<void> {
+    async function translate(language: string = 'english', text: string | null = null): Promise<void> {
       text = apiCall(text);
       if (!text) return;
       apiResponse(((await openaiCall(

@@ -5,23 +5,22 @@ import {davinci, curie, babbage} from './openaiFunctions';
 admin.initializeApp();
 
 const db = admin.firestore();
-const fieldValue = admin.firestore.FieldValue;
 
 interface User {
-  expireDate: admin.firestore.FieldValue;
+  expireDate: admin.firestore.Timestamp;
 }
 
 export const newUser = functions.auth.user().onCreate((user) => {
   return admin.firestore().doc(`users/${user.uid}`).set({
-    expireDate: fieldValue.serverTimestamp()
+    expireDate: admin.firestore.Timestamp.now()
   });
 });
 
 export const openaiCall = functions.https.onCall(async (data, context) => {
   const user = context.auth;
-  if (!user) return null;
+  if (!user) return {response: false};
   const userData = await db.doc(`users/${user.uid}`).get();
-  if ((userData.data() as User).expireDate <= fieldValue.serverTimestamp()) return null;
+  if (((userData.data() as User).expireDate as admin.firestore.Timestamp) <= admin.firestore.Timestamp.now()) return {response: false};
 
   switch (data.model) {
     case 'davinci':
@@ -31,6 +30,6 @@ export const openaiCall = functions.https.onCall(async (data, context) => {
     case 'babbage':
       return {response: await babbage(data.prompt, data.temperature, data.maxTokens)};
     default:
-      return null;
+      return {response: false};
   }
 });
