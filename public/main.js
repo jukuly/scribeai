@@ -11,7 +11,7 @@ let tray;
 
 function initializeApp() {
   if (!tray) {
-    tray = new Tray(path.join(__dirname, 'smallLogoX32.ico'));
+    tray = new Tray(path.join(__dirname, './assets/smallLogoX256.ico'));
     tray.setToolTip('ScribeAI');
     tray.setTitle('ScribeAI');
     tray.setContextMenu(Menu.buildFromTemplate([
@@ -38,7 +38,7 @@ function createWindow() {
       width: 600,
       height: 450,
       resizable: false,
-      icon: path.join(__dirname, 'smallLogoX32.ico'),
+      icon: path.join(__dirname, './assets/smallLogoX256.ico'),
       webPreferences: {
         sandbox: false,
         preload: path.join(__dirname, 'preload.js')
@@ -48,7 +48,7 @@ function createWindow() {
       event.preventDefault();
     });
     mainWindow.removeMenu();
-    mainWindow.loadURL(isDev ? `http://localhost:3000/main` : `file://${path.join(__dirname, `../index.html?main`)}`);
+    mainWindow.loadURL(isDev ? `http://localhost:3000/main` : `file://${path.join(__dirname, `../index.html#/main`)}`);
   
     if (isDev) mainWindow.webContents.openDevTools();
   }
@@ -73,7 +73,7 @@ function createPopUp() {
         preload: path.join(__dirname, 'preload.js')
       }
     }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y));
-    popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../index.html?pop-up')}`); 
+    popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../index.html#/pop-up')}`); 
 
     if (isDev) popUpWindow.webContents.openDevTools();
   }

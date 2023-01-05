@@ -47,7 +47,10 @@
       "package.json"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "build"
+    },
+    "win": {
+      "icon": "build/assets/smallLogoX256.ico"
     }
   },
   "eslintConfig": {
