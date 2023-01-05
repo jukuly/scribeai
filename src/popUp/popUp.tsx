@@ -5,6 +5,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import './popUp.scss';
 import { httpsCallable } from 'firebase/functions';
 import React from 'react';
+import { Options } from './options/options';
 
 const openaiCall = httpsCallable(functionsInstance, 'openaiCall');
  
@@ -12,13 +13,11 @@ export function PopUp() {
   const [user] = useAuthState(authInstance); //User currently signed in
   const [selectedText, setSelectedText] = useState<string>(''); //Text selected by the user
   const [results, setResults] = useState<string[]>([]); //Results from API
-  const [keywords, setKeywords] = useState<Set<string>>(new Set()); //Keywords selected
-  const [keyword, setKeyword] = useState<string>(''); //Current keyword being typed
+  const [options, setOptions] = useState<Set<string>>(new Set()); //Options selected
 
   const [valid, setValid] = useState<boolean>(false); //If the request is valid
   const [loading, setLoading] = useState<boolean>(true); //True when waiting for response from API
-  const [showKeywords, setShowKeywords] = useState<boolean>(true); //Whether of not to show the keyword field
-
+  const [current, setCurrent] = useState<string>('0'); //The id of the service selected
   const win = useRef(null); //Ref to the screen to adjust it's size dynamically
   const select = useRef(null); //Ref to the select function menu
 
@@ -47,8 +46,7 @@ export function PopUp() {
       setResults(['Make sure the selected text doesn\'t go over 500 characters']);
     } else if (authInstance.currentUser) {
       setSelectedText(text);
-      const current = select.current ? parseInt((select.current! as HTMLSelectElement).value) : 0;
-      functions[current](text);
+      functions[parseInt(current)](text);
     }
     console.log('selected-text: ' + text);
   }
@@ -92,9 +90,9 @@ export function PopUp() {
         apiResponse(((await openaiCall(
           { 
             model: 'curie',
-            prompt: `Add to this text${keywords.size > 0 ? 
-              `using these keywords: ${Array.from(keywords).map((keyword, index) => 
-                index < keywords.size-1 ? 
+            prompt: `Add to this text${options.size > 0 ? 
+              `using these keywords: ${Array.from(options).map((keyword, index) => 
+                index < options.size-1 ? 
                 `${keyword}, ` 
                 : `${keyword}.`)}`
               : '.'}\n\n${text}`,
@@ -133,9 +131,11 @@ export function PopUp() {
       )).data as ApiResponse).response);
     },
   
-    async function translate(language: string = 'english', text: string | null = null): Promise<void> {
+    async function translate(text: string | null = null): Promise<void> {
       text = apiCall(text);
       if (!text) return;
+      let language = 'english';
+      if (options.size > 0) options.forEach(option => language = option); //Shouldn't be more than one element in the set
       apiResponse(((await openaiCall(
         { 
           model: 'curie',
@@ -171,26 +171,7 @@ export function PopUp() {
   }
 
   function refresh(): void {
-    functions[parseInt((select.current! as HTMLSelectElement).value)]();
-  }
-
-  function addKeyword(keyword: string): void {
-    keyword = keyword.trim();
-    if (keyword === '' || keywords.size >= 5) return;
-    setKeywords(keywords => {
-      const newSet = new Set(keywords);
-      newSet.add(keyword);
-      return newSet;
-    });
-    setKeyword('');
-  }
-
-  function removeKeyword(keyword: string): void {
-    setKeywords(keywords => {
-      const newSet = new Set(keywords);
-      newSet.delete(keyword);
-      return newSet;
-    });
+    functions[parseInt(current)]();
   }
 
   ///////
@@ -219,7 +200,7 @@ export function PopUp() {
             )
           }
           <div className='buttons'>
-            <select className='action' ref={select} onChange={() => setShowKeywords((select.current! as HTMLSelectElement).value === '0')}>
+            <select className='action' ref={select} value={current} onChange={event => setCurrent(event.target.value)}>
               <option value='0'>Complete</option>
               <option value='1'>Grammar</option>
               <option value='2'>Rephrase</option>
@@ -242,29 +223,10 @@ export function PopUp() {
             </button>
           </div>
           {
-            showKeywords  &&
-            <div className='keywords'>
-              {
-                Array.from(keywords).map((word, index) => 
-                  <span className='keyword' 
-                    onClick={() => removeKeyword(word as string)} key={index}>
-                    <>
-                      {word}
-                      <span className='material-symbols-outlined copy-icon'>
-                        close
-                      </span>
-                    </>
-                  </span>
-                )
-              }
-              <form onSubmit={event => {
-                event.preventDefault();
-                addKeyword(keyword);
-              }}>
-                <input className='add-keyword' type='text' placeholder='Keywords (max. 5)' value={keyword} 
-                  onChange={event => setKeyword(event.target.value)} maxLength={25}></input>
-              </form>
-            </div>
+            (current === '0' || current === '3') &&
+            <Options onUpdateContent={(options: Set<string>) => setOptions(options)} 
+              contentSize={current === '0' ? 5 : current === '3' ? 1 : 0} 
+              placeholder={current === '0' ? 'Keywords (max. 5)' : current === '3' ? 'Language' : ''} />
           }
         </div>
         : 
