@@ -70,7 +70,7 @@ export function PopUp() {
 
   function apiCall(text: string | null): string | null {
     let textToSend = text ? text : selectedText;
-    if (!textToSend) {
+    if (!textToSend && (current !== '0' || options.size === 0)) {
       setLoading(false);
       setValid(false);
       setResults(['Start by highlighting some text']);
@@ -85,16 +85,18 @@ export function PopUp() {
   const functions = [
     async function complete(text: string | null = null): Promise<void> {
       text = apiCall(text);
-      if (!text) return;
+      if (text === null) return;
       for (let i = 0; i < 3; i++) {
         apiResponse(((await openaiCall(
           { 
             model: 'curie',
-            prompt: `Add to this text${options.size > 0 ? 
+            prompt: `${(options.size > 0 && text === '') ? 'Write a sentence' : 'Add to this text'} ${options.size > 0 ? 
               `using these keywords: ${Array.from(options).map((keyword, index) => 
-                index < options.size-1 ? 
-                `${keyword}, ` 
-                : `${keyword}.`)}`
+                index < options.size-1 ?
+                  index === 0 ?
+                    keyword
+                  : ` ${keyword}` 
+                : ` ${keyword}.`)}`
               : '.'}\n\n${text}`,
             temperature: 1,
             maxTokens: 16 

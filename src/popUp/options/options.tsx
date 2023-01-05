@@ -9,10 +9,7 @@ export function Options({onUpdateContent, contentSize, placeholder}:
   const [content, setContent] = useState<Set<string>>(new Set()); //Keywords or language selected
   const [word, setWord] = useState<string>(''); //Current keyword or language being typed
 
-  useEffect(() => {
-    contentSize = contentSize;
-    placeholder = placeholder;
-  }, [contentSize, placeholder])
+  useEffect(() => onUpdateContent(content), [content])
 
   function addWord(word: string): void {
     word = word.trim();
@@ -20,7 +17,6 @@ export function Options({onUpdateContent, contentSize, placeholder}:
     setContent(content => {
       const newSet = new Set(content);
       newSet.add(word);
-      onUpdateContent(newSet);
       return newSet;
     });
     setWord('');
@@ -30,7 +26,6 @@ export function Options({onUpdateContent, contentSize, placeholder}:
     setContent(content => {
       const newSet = new Set(content);
       newSet.delete(word);
-      onUpdateContent(newSet);
       return newSet;
     });
   }
