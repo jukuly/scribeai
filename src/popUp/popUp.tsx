@@ -134,8 +134,7 @@ export function PopUp() {
     async function translate(text: string | null = null): Promise<void> {
       text = apiCall(text);
       if (!text) return;
-      let language = 'english';
-      if (options.size > 0) options.forEach(option => language = option); //Shouldn't be more than one element in the set
+      const language = (options.size > 0) ? [...options][0] : 'english';
       apiResponse(((await openaiCall(
         { 
           model: 'curie',
