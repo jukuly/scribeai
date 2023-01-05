@@ -9,14 +9,6 @@ export function SignIn() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  function signUp(): void {
-    //TODO open the sign up page on website
-  }
-
-  function forgotPassword(): void {
-    //TODO open forgot password webpage
-  }
-
   function signIn(): void {
     auth.signInWithEmailAndPassword(authInstance, email, password)
       .then(() => setError(''))
@@ -47,8 +39,8 @@ export function SignIn() {
             <button className='sign-in-button' type='submit'>Sign In</button>
           </div>
         </form>
-        <span className='sign-up'>No account yet? <span className='underlined' onClick={() => signUp()}>Sign up</span> instead</span>
-        <span className='forgot'><span className='underlined' onClick={() => forgotPassword()}>I forgot my password</span></span>
+        <span className='sign-up'>No account yet? <span className='underlined' onClick={() => window.api.openInBrowser('https://www.youtube.com')}>Sign up</span> instead</span>
+        <span className='forgot'><span className='underlined' onClick={() => window.api.openInBrowser('https://www.youtube.com')}>I forgot my password</span></span>
       </div>
     </div>
   );

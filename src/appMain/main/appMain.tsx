@@ -10,6 +10,7 @@ export function AppMain() {
 
   return (
     <div className='app'>
+      <button className='profile' onClick={() => window.api.openInBrowser('https://www.youtube.com')}>Profile</button>
       <button className='sign-out' onClick={() => signOut()}>Sign out</button>
     </div> 
   );

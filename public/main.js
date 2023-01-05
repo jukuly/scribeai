@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, globalShortcut, clipboard, screen, ipcMain } = require('electron');
+const { app, BrowserWindow, Tray, Menu, globalShortcut, clipboard, screen, ipcMain, shell } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 const { sendCombination } = require('node-key-sender');
@@ -11,7 +11,7 @@ let tray;
 
 function initializeApp() {
   if (!tray) {
-    tray = new Tray(path.join(app.getAppPath(), 'public/smallLogoX32.ico'));
+    tray = new Tray(path.join(app.getAppPath(), `${isDev ? 'public/smallLogoX32.ico' : '../build/smallLogoX32.ico'}`));
     tray.setToolTip('ScribeAI');
     tray.setTitle('ScribeAI');
     tray.setContextMenu(Menu.buildFromTemplate([
@@ -35,13 +35,13 @@ async function shortcut() {
 function createWindow() {
   if (!mainWindow) {
     mainWindow = new BrowserWindow({
-      width: 800,
-      height: 600,
+      width: 600,
+      height: 450,
       resizable: false,
-      icon: path.join(app.getAppPath(), 'public/smallLogoX32.ico'),
+      icon: path.join(app.getAppPath(), `${isDev ? 'public/smallLogoX32.ico' : '../build/smallLogoX32.ico'}`),
       webPreferences: {
         sandbox: false,
-        preload: path.join(app.getAppPath(), 'public/preload.js')
+        preload: path.join(app.getAppPath(), `${isDev ? 'public/preload.js' : '../build/preload.js'}`)
       }
     }).addListener('close', event => {
       mainWindow.hide();
@@ -65,13 +65,12 @@ function createPopUp() {
       skipTaskbar: true,
       frame: false,
       alwaysOnTop: true,
-      //focusable: false,
       fullscreenable: false,
       show: false,
       transparent: true,
       webPreferences: {
         sandbox: false,
-        preload: path.join(app.getAppPath(), 'public/preload.js')
+        preload: path.join(app.getAppPath(), `${isDev ? 'public/preload.js' : '../build/preload.js'}`)
       }
     }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y));
     popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, '../build/index.html#/pop-up')}`); 
@@ -118,3 +117,5 @@ ipcMain.handle('close-pop-up', () => popUpWindow.hide());
 ipcMain.handle('set-pop-up-size', (event, [x, y]) => popUpWindow.setSize(x, y));
 
 ipcMain.handle('write-text', (event, text) => writeText(text));
+
+ipcMain.handle('open-in-browser', (event, url) => shell.openExternal(url));

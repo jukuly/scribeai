@@ -21,6 +21,9 @@ contextBridge.exposeInMainWorld(
           ipcRenderer.off(channel, (event, ...args) => func(...args));
         }
       },
+      openInBrowser(url) {
+        return ipcRenderer.invoke('open-in-browser', url);
+      },
       get(channel) {
         return ipcRenderer.listeners(channel);
       },
