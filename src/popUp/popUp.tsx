@@ -43,7 +43,7 @@ export function PopUp() {
     if (text.length > 512) {
       setLoading(false);
       setValid(false);
-      setResults(['Make sure the selected text doesn\'t go over 500 characters']);
+      setResults(['Make sure the selected text doesn\'t go over 450 characters']);
     } else if (authInstance.currentUser) {
       setSelectedText(text);
       functions[parseInt(current)](text);
@@ -167,10 +167,6 @@ export function PopUp() {
     window.api.closePopUp();
   }
 
-  function record(): void {
-    //TODO function that records every keystroke to make more accurate predictions, limits at 500 characters
-  }
-
   function refresh(): void {
     functions[parseInt(current)]();
   }
@@ -210,11 +206,6 @@ export function PopUp() {
             <button className='refresh' onClick={() => refresh()}>
               <span className='material-symbols-outlined'>
                 refresh
-              </span>
-            </button>
-            <button className='record' onClick={() => record()}>
-              <span className='material-symbols-outlined'>
-                radio_button_checked
               </span>
             </button>
             <button className='close' onClick={() => closePopUp()}>
