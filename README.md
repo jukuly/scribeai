@@ -7,11 +7,10 @@ Dependencies (npm packages):
 - react
 - typescript
 - electron-is-dev
-- node-key-sender
+- robotjs
 - sass
 - firebase (auth, firestore, functions)
 - react-firebase-hooks
-- react-router-dom
 - path
 
 Run: `npm run electron-serve` <br />

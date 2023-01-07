@@ -51,7 +51,7 @@ async function createWindow() {
     await mainWindow.loadURL(isDev ? `http://localhost:3000` : `file://${path.join(__dirname, `./index.html`)}`);
     mainWindow.webContents.send('render', 'main');
 
-    /*if (isDev)*/ mainWindow.webContents.openDevTools();
+    if (isDev) mainWindow.webContents.openDevTools();
   }
 }
 
@@ -77,7 +77,7 @@ async function createPopUp() {
     await popUpWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, './index.html')}`); 
     popUpWindow.webContents.send('render', 'pop-up');
 
-    /*if (isDev)*/ popUpWindow.webContents.openDevTools();
+    if (isDev) popUpWindow.webContents.openDevTools();
   }
 }
 
