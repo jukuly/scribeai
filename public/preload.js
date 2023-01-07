@@ -10,13 +10,13 @@ contextBridge.exposeInMainWorld(
         }
       },
       receive(channel, func) {
-        let validChannels = ['selected-text', 'api-response'];
+        let validChannels = ['selected-text', 'api-response', 'render'];
         if (validChannels.includes(channel)) {
           ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
       },
       removeListener(channel, func) {
-        let validChannels = ['selected-text', 'api-response'];
+        let validChannels = ['selected-text', 'api-response', 'render'];
         if (validChannels.includes(channel)) {
           ipcRenderer.off(channel, (event, ...args) => func(...args));
         }

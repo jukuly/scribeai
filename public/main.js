@@ -9,7 +9,7 @@ let mainWindow;
 let popUpWindow;
 let tray;
 
-function initializeApp() {
+async function initializeApp() {
   if (!tray) {
     tray = new Tray(path.join(__dirname, './assets/smallLogoX256.ico'));
     tray.setToolTip('ScribeAI');
@@ -19,20 +19,20 @@ function initializeApp() {
       { label: 'Exit', click: () => app.exit() }
     ]));
   }
-  createWindow();
-  createPopUp();
+  await createWindow();
+  await createPopUp();
   globalShortcut.register('CommandOrControl+Shift+Space', () => shortcut());
 }
 
 async function shortcut() {
-  if (!popUpWindow) createPopUp();
+  if (!popUpWindow) await createPopUp();
   getSelectedText()
     .then(text => popUpWindow.webContents.send('selected-text', text)); 
   
   popUpWindow.showInactive();
 }
 
-function createWindow() {
+async function createWindow() {
   if (!mainWindow) {
     mainWindow = new BrowserWindow({
       width: 600,
@@ -48,13 +48,14 @@ function createWindow() {
       event.preventDefault();
     });
     mainWindow.removeMenu();
-    mainWindow.loadURL(isDev ? `http://localhost:3000/main` : `file://${path.join(__dirname, `./index.html#/main`)}`);
-  
-    if (isDev) mainWindow.webContents.openDevTools();
+    await mainWindow.loadURL(isDev ? `http://localhost:3000` : `file://${path.join(__dirname, `./index.html`)}`);
+    mainWindow.webContents.send('render', 'main');
+
+    /*if (isDev)*/ mainWindow.webContents.openDevTools();
   }
 }
 
-function createPopUp() {
+async function createPopUp() {
   if (!popUpWindow) {
     popUpWindow = new BrowserWindow({
       x: screen.getCursorScreenPoint().x,
@@ -73,9 +74,10 @@ function createPopUp() {
         preload: path.join(__dirname, 'preload.js')
       }
     }).addListener('show', () => popUpWindow.setPosition(screen.getCursorScreenPoint().x, screen.getCursorScreenPoint().y));
-    popUpWindow.loadURL(isDev ? 'http://localhost:3000/pop-up' : `file://${path.join(__dirname, './index.html#/pop-up')}`); 
+    await popUpWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, './index.html')}`); 
+    popUpWindow.webContents.send('render', 'pop-up');
 
-    if (isDev) popUpWindow.webContents.openDevTools();
+    /*if (isDev)*/ popUpWindow.webContents.openDevTools();
   }
 }
 
@@ -92,7 +94,7 @@ async function getSelectedText() {
   return result;
 }
 
-async function writeText(text) {
+function writeText(text) {
   clipboard.writeText(text);
 }
 
@@ -106,9 +108,9 @@ if (!firstInstance) {
   });
 }
 
-app.on('ready', () => initializeApp());
+app.on('ready', async () => await initializeApp());
 
-app.on('activate', () => initializeApp());
+app.on('activate', async () => await initializeApp());
 
 app.on('window-all-closed', event => event.preventDefault());
 

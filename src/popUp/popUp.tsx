@@ -19,7 +19,6 @@ export function PopUp() {
   const [loading, setLoading] = useState<boolean>(true); //True when waiting for response from API
   const [current, setCurrent] = useState<string>('0'); //The id of the service selected
   const win = useRef(null); //Ref to the screen to adjust it's size dynamically
-  const select = useRef(null); //Ref to the select function menu
 
   //Init
   useEffect(() => {
@@ -197,7 +196,7 @@ export function PopUp() {
             )
           }
           <div className='buttons'>
-            <select className='action' ref={select} value={current} onChange={event => setCurrent(event.target.value)}>
+            <select className='action' value={current} onChange={event => setCurrent(event.target.value)}>
               <option value='0'>Complete</option>
               <option value='1'>Grammar</option>
               <option value='2'>Rephrase</option>
