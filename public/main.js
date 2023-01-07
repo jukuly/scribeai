@@ -1,7 +1,7 @@
 const { app, BrowserWindow, Tray, Menu, globalShortcut, clipboard, screen, ipcMain, shell } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
-const { sendCombination } = require('node-key-sender');
+const robot = require('robotjs');
 
 const firstInstance = app.requestSingleInstanceLock();
 
@@ -85,13 +85,15 @@ async function getSelectedText() {
   const text = clipboard.readText();
   clipboard.clear();
   if (process.platform === 'darwin') {
-    await sendCombination(['command', 'c']);
+    robot.keyTap('c', 'command');
   } else {
-    await sendCombination(['control', 'c']);
+    robot.keyTap('c', 'control');
   }
-  const result = clipboard.readText();
-  clipboard.writeText(text);
-  return result;
+  return new Promise((resolve, reject) => setTimeout(resolve, 100)).then(() => {
+    const result = clipboard.readText();
+    clipboard.writeText(text);
+    return result;
+  });
 }
 
 function writeText(text) {
