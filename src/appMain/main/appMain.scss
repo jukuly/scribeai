@@ -1,5 +1,5 @@
 .app {
-  background-image: linear-gradient(to bottom right, #3066be, #80ded9 60%);
+  background-image: linear-gradient(to bottom right, #5c21ff, #9B89B3);
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -17,10 +17,10 @@
     transition: border-color 150ms;
   } 
   button:hover {
-    border: solid 1px #119da4;
+    border: solid 1px #5c21ff;
   }
   button:active {
-    border: solid 2px #119da4;
+    border: solid 2px #5c21ff;
     padding: calc(0.5rem - 1px) calc(0.75rem - 1px) calc(0.5rem - 1px) calc(0.75rem - 1px);
   }
 }

@@ -1,5 +1,5 @@
 .sign-in {
-  background-image: linear-gradient(to bottom right, #3066be, #80ded9 60%);
+  background-image: linear-gradient(to bottom right, #5c21ff, #9B89B3);
   height: 100vh;
 }
 
@@ -26,7 +26,7 @@
   }
   input:focus {
     outline: none;
-    border-bottom: solid 1px #119da4;
+    border-bottom: solid 1px #5c21ff;
   }
 
   .below-fields {
@@ -52,17 +52,17 @@
     transition: border-color 150ms;
   }
   .sign-in-button:hover {
-    border: solid 1px #119da4;
+    border: solid 1px #5c21ff;
   }
   .sign-in-button:active {
-    border: solid 2px #119da4;
+    border: solid 2px #5c21ff;
     padding: calc(0.5rem - 1px) calc(0.75rem - 1px) calc(0.5rem - 1px) calc(0.75rem - 1px);
   }
 
   .sign-up, .forgot {
     font-size: 0.75rem;
     .underlined {
-      background-image: linear-gradient(#119da4, #119da4);
+      background-image: linear-gradient(#5c21ff, #5c21ff);
       background-size: 0% 0.1em;
       background-position-y: 100%;
       background-position-x: 0%;
