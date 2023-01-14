@@ -58,7 +58,7 @@ export default [
     callback(((await openaiCall(
       { 
         model: 'davinci',
-        prompt: `Rephrase this text.\n\n${
+        prompt: `Rephrase this text${options.size > 0 ? ` using this style: ${[...options][0]}` : ''}.\n\n${
           (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
         }\n\n`,
         temperature: 1  

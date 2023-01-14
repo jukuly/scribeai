@@ -141,10 +141,10 @@ export function PopUp() {
             </button>
           </div>
           {
-            (current === '0' || current === '3') &&
+            (current === '0' || current === '2' || current === '3') &&
             <Options onUpdateContent={(options: Set<string>) => setOptions(options)} 
-              contentSize={current === '0' ? 5 : current === '3' ? 1 : 0} 
-              placeholder={current === '0' ? 'Keywords (max. 5)' : current === '3' ? 'Language' : ''} />
+              contentSize={current === '0' ? 5 : current === '3' || current === '2' ? 1 : 0} 
+              placeholder={current === '0' ? 'Keywords (max. 5)' : current === '2' ? 'Style' : current === '3' ? 'Language' : '' } />
           }
         </div>
         : 
