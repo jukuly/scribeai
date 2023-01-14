@@ -90,12 +90,14 @@ async function createPopUp() {
 async function getSelectedText() {
   const text = clipboard.readText();
   clipboard.clear();
+  robot.keyToggle('shift', 'up'); //Release shift key so that it doesn't interfer with the Ctrl+C that's coming
+  robot.keyToggle('space', 'up') //Same for the space key; no need to release the ctrl key since it's gonna be pressed again anyway
   if (process.platform === 'darwin') {
     robot.keyTap('c', 'command');
   } else {
     robot.keyTap('c', 'control');
   }
-  return new Promise((resolve, reject) => setTimeout(resolve, 1000)).then(() => {
+  return new Promise((resolve, reject) => setTimeout(resolve, 100)).then(() => {
     const result = clipboard.readText();
     clipboard.writeText(text);
     return result;
