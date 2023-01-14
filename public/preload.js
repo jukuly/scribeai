@@ -15,10 +15,10 @@ contextBridge.exposeInMainWorld(
           ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
       },
-      removeListener(channel, func) {
+      removeListener(channel) {
         let validChannels = ['selected-text', 'api-response', 'render'];
         if (validChannels.includes(channel)) {
-          ipcRenderer.off(channel, (event, ...args) => func(...args));
+          ipcRenderer.removeAllListeners(channel);
         }
       },
       openInBrowser(url) {

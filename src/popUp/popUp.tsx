@@ -20,33 +20,32 @@ export function PopUp() {
   const [current, setCurrent] = useState<string>('0'); //The id of the service selected
   const win = useRef(null); //Ref to the screen to adjust it's size dynamically
 
-  //Init
+  //Init listeners for messages from main process
   useEffect(() => {
-    window.api.receive('selected-text', selectedTextListener);
+    window.api.receive('selected-text', (text: string) => {
+      setSelectedText(text);
+      if (text.length > 512) {
+        setLoading(false);
+        setValid(false);
+        setResults(['Make sure the selected text doesn\'t go over 450 characters']);
+      } else if (authInstance.currentUser) {
+        APIFunctions[parseInt(current)](apiCall(text), apiResponse, options);
+      }
+      console.log('selected-text: ' + text);
+    });
 
+    //Cleanup function
     return () => {
       window.api.removeListener('selected-text');
     };
-  }, []);
+  }, [current, options]); //Takes these two states as dependency so their values are correct
 
-  //Resize window
+  //Resize window to fit content
   useEffect(() => {
     if (win.current) window.api.setPopUpSize((win.current as HTMLElement).clientWidth, (win.current as HTMLElement).clientHeight);
   });
 
-  //Listeners
-  function selectedTextListener(text: string): void {
-    if (text.length > 512) {
-      setLoading(false);
-      setValid(false);
-      setResults(['Make sure the selected text doesn\'t go over 450 characters']);
-    } else if (authInstance.currentUser) {
-      setSelectedText(text);
-      APIFunctions[parseInt(current)](apiCall(text), apiResponse, options);
-    }
-    console.log('selected-text: ' + text);
-  }
-
+  //Callback for an API call
   function apiResponse(text: string): void {
     if (!text) {
       setLoading(false);
@@ -81,7 +80,7 @@ export function PopUp() {
     return textToSend.trim();
   }
   
-  //On click
+  //On click functions
   function writeText(text: string): void {
     if (valid) {
       window.api.writeText(text);
