@@ -58,7 +58,14 @@ export function PopUp() {
       return;
     }
     setLoading(false);
-    if (text !== '') setResults(results => [...results, text.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ')]);
+    if (text !== '') {
+      const textLines = text.split('\n');
+      let i = 0;
+      while (i < textLines.length-1 && textLines[i].replace(/\s/g, '').length === 0) {
+        i++;
+      }
+      setResults(results => [...results, text.split('\n')[i].replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ')]);
+    }
     setValid(true);
     console.log('api-response: ' + text);
   }
