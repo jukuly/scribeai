@@ -2,12 +2,12 @@ import React from 'react';
 import { authInstance } from '../../firebase';
 import './appMain.scss';
 
+function signOut(): void {
+  authInstance.signOut();
+}
+
+//Component
 export function AppMain() {
-
-  function signOut(): void {
-    authInstance.signOut();
-  }
-
   return (
     <div className='app'>
       <button className='profile' onClick={() => window.api.openInBrowser('https://www.youtube.com')}>Profile</button>

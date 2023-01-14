@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import './options.scss'
 
+//Component
 export function Options({onUpdateContent, contentSize, placeholder}: 
-    { onUpdateContent: (content: Set<string>) => void, 
+    { 
+      onUpdateContent: (content: Set<string>) => void, 
       contentSize: number, 
       placeholder: string 
     }) {

@@ -9,6 +9,8 @@ let mainWindow;
 let popUpWindow;
 let tray;
 
+let processingShortcut = false;
+
 async function initializeApp() {
   if (!tray) {
     tray = new Tray(path.join(__dirname, './assets/smallLogoX256.ico'));
@@ -21,13 +23,17 @@ async function initializeApp() {
   }
   await createWindow();
   await createPopUp();
-  globalShortcut.register('CommandOrControl+Shift+Space', () => shortcut());
+  globalShortcut.register('CommandOrControl+Shift+Space', () => {
+    if (!processingShortcut) shortcut();
+  });
 }
 
 async function shortcut() {
+  processingShortcut = true;
   if (!popUpWindow) await createPopUp();
   getSelectedText()
-    .then(text => popUpWindow.webContents.send('selected-text', text)); 
+    .then(text => popUpWindow.webContents.send('selected-text', text))
+    .then(() => processingShortcut = false);
   
   popUpWindow.showInactive();
 }
@@ -89,7 +95,7 @@ async function getSelectedText() {
   } else {
     robot.keyTap('c', 'control');
   }
-  return new Promise((resolve, reject) => setTimeout(resolve, 100)).then(() => {
+  return new Promise((resolve, reject) => setTimeout(resolve, 1000)).then(() => {
     const result = clipboard.readText();
     clipboard.writeText(text);
     return result;

@@ -4,6 +4,7 @@ import * as auth from "firebase/auth";
 import { useState } from 'react';
 import React from 'react';
 
+//Component
 export function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

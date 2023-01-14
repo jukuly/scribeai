@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loading } from '../loading/loading';
-import { authInstance, functionsInstance } from '../firebase';
+import { authInstance } from '../firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
 import './popUp.scss';
-import { httpsCallable } from 'firebase/functions';
+
 import React from 'react';
 import { Options } from './options/options';
-
-const openaiCall = httpsCallable(functionsInstance, 'openaiCall');
+import APIFunctions from '../apiCallFunctions';
  
+//Component
 export function PopUp() {
   const [user] = useAuthState(authInstance); //User currently signed in
   const [selectedText, setSelectedText] = useState<string>(''); //Text selected by the user
@@ -34,10 +34,7 @@ export function PopUp() {
     if (win.current) window.api.setPopUpSize((win.current as HTMLElement).clientWidth, (win.current as HTMLElement).clientHeight);
   });
 
-  ///////////////////////
-  //Real-time listeners//
-  ///////////////////////
-
+  //Listeners
   function selectedTextListener(text: string): void {
     if (text.length > 512) {
       setLoading(false);
@@ -45,7 +42,7 @@ export function PopUp() {
       setResults(['Make sure the selected text doesn\'t go over 450 characters']);
     } else if (authInstance.currentUser) {
       setSelectedText(text);
-      functions[parseInt(current)](text);
+      APIFunctions[parseInt(current)](apiCall(text), apiResponse, options);
     }
     console.log('selected-text: ' + text);
   }
@@ -70,11 +67,8 @@ export function PopUp() {
     console.log('api-response: ' + text);
   }
 
-  /////////////
-  //API calls//
-  /////////////
-
-  function apiCall(text: string | null): string | null {
+  //API call text pre-processor
+  function apiCall(text: string | null = null): string | null {
     let textToSend = text ? text : selectedText;
     if (!textToSend && (current !== '0' || options.size === 0)) {
       setLoading(false);
@@ -86,79 +80,8 @@ export function PopUp() {
     setResults([]);
     return textToSend.trim();
   }
-
-  //The api functions are in an array for easy access depending on the state 'current'
-  const functions = [
-    async function complete(text: string | null = null): Promise<void> {
-      text = apiCall(text);
-      if (text === null) return;
-      for (let i = 0; i < 3; i++) {
-        apiResponse(((await openaiCall(
-          { 
-            model: 'curie',
-            prompt: `${(options.size > 0 && text === '') ? 'Write a sentence' : 'Add to this text'} ${options.size > 0 ? 
-              `using these keywords: ${Array.from(options).map((keyword, index) => 
-                index < options.size-1 ?
-                  index === 0 ?
-                    keyword
-                  : ` ${keyword}` 
-                : ` ${keyword}.`)}`
-              : '.'}\n\n${text}`,
-            temperature: 1,
-            maxTokens: 16 
-          }
-        )).data as ApiResponse).response);
-      }
-    },
-
-    async function grammar(text: string | null = null): Promise<void> {
-      text = apiCall(text);
-      if (!text) return;
-      apiResponse(((await openaiCall(
-        {
-          model: 'babbage',
-          prompt: `Correct the grammar.\n\n${
-            (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
-          }\n\n`,
-          temperature: 0
-        }
-      )).data as ApiResponse).response);
-    },
-
-    async function rephrase(text: string | null = null): Promise<void> {
-      text = apiCall(text);
-      if (!text) return;
-      apiResponse(((await openaiCall(
-        { 
-          model: 'davinci',
-          prompt: `Rephrase this text.\n\n${
-            (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
-          }\n\n`,
-          temperature: 1  
-        }
-      )).data as ApiResponse).response);
-    },
   
-    async function translate(text: string | null = null): Promise<void> {
-      text = apiCall(text);
-      if (!text) return;
-      const language = (options.size > 0) ? [...options][0] : 'english';
-      apiResponse(((await openaiCall(
-        { 
-          model: 'curie',
-          prompt: `Translate this text to ${language}.\n\n${
-            (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
-          }\n\n`,
-          temperature: 0  
-        }
-      )).data as ApiResponse).response);
-    }
-  ];
-  
-  //////////////////////////////
-  //Buttons on click functions//
-  //////////////////////////////
-
+  //On click
   function writeText(text: string): void {
     if (valid) {
       window.api.writeText(text);
@@ -174,13 +97,10 @@ export function PopUp() {
   }
 
   function refresh(): void {
-    functions[parseInt(current)]();
+    APIFunctions[parseInt(current)](apiCall(), apiResponse, options);
   }
 
-  ///////
-  //JSX//
-  ///////
-
+  //JSX template
   return (
     <div className='drag'>
       {
