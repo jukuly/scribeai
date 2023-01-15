@@ -58,7 +58,7 @@ export default [
     callback(((await openaiCall(
       { 
         model: 'davinci',
-        prompt: `Rephrase this text${options.size > 0 ? ` using this style: ${[...options][0]}` : ''}.\n\n${
+        prompt: `Rephrase this${options.size > 0 ? ` using this style: ${[...options][0]}` : ''}.\n\n${
           (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
         }\n\n`,
         temperature: 1  
@@ -77,10 +77,10 @@ export default [
     callback(((await openaiCall(
       { 
         model: 'curie',
-        prompt: `Translate this text to ${language}.\n\n${
+        prompt: `Translate this into ${language}:\n\n${
           (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
         }\n\n`,
-        temperature: 0  
+        temperature: 0.3  
       }
     )).data as ApiResponse).response);
   }
