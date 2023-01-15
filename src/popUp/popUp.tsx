@@ -96,7 +96,14 @@ export function PopUp() {
   }
 
   function refresh(): void {
-    APIFunctions[parseInt(current)](apiCall(), apiResponse, options);
+    if (selectedText.length > 512) {
+      setLoading(false);
+      setValid(false);
+      setResults(['Make sure the selected text doesn\'t go over 450 characters']);
+    } else if (authInstance.currentUser) {
+      APIFunctions[parseInt(current)](apiCall(selectedText), apiResponse, options);
+    }
+    APIFunctions[parseInt(current)](apiCall(selectedText), apiResponse, options);
   }
 
   //JSX template
