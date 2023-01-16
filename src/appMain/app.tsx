@@ -2,21 +2,26 @@ import { AppMain } from "./main/appMain";
 import { SignIn } from "./signIn/signIn";
 import { authInstance } from '../firebase';
 import { PopUp } from "../popUp/popUp";
-import { useAuthState } from "react-firebase-hooks/auth";
 import React, { useEffect, useState } from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 //Component
 export function App() {
-  const [user] = useAuthState(authInstance);
   const [win, setWin] = useState<string>('');
+  const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => window.api.receive('render', (route: string) => setWin(route)), []);
+  useEffect(() => {
+    window.api.receive('render', (route: string) => setWin(route));
+    onAuthStateChanged(authInstance, user => {
+      setUser(user);
+    });
+  }, []);
 
   switch (win) {
     case 'main':
       return user ? <AppMain /> : <SignIn />;
     case 'pop-up':
-      return <PopUp />;
+      return <PopUp user={user} />;
     default:
       return <div>No route</div>;
   }

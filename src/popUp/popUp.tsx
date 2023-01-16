@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loading } from '../loading/loading';
 import { authInstance } from '../firebase';
-import { useAuthState } from "react-firebase-hooks/auth";
 import './popUp.scss';
 
-import React from 'react';
 import { Options } from './options/options';
 import APIFunctions from '../apiCallFunctions';
+import { User } from 'firebase/auth';
+import React from 'react';
  
 //Component
-export function PopUp() {
-  const [user] = useAuthState(authInstance); //User currently signed in
+export function PopUp(props: {user: User | null}) {
+  const user = props.user;
   const [selectedText, setSelectedText] = useState<string>(''); //Text selected by the user
   const [results, setResults] = useState<string[]>([]); //Results from API
   const [options, setOptions] = useState<Set<string>>(new Set()); //Options selected
