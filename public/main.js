@@ -23,7 +23,7 @@ async function initializeApp() {
   }
   await createWindow();
   await createPopUp();
-  globalShortcut.register('CommandOrControl+Shift+Space', () => {
+  globalShortcut.register('Alt+x', () => {
     if (!processingShortcut) shortcut();
   });
 }
@@ -90,8 +90,8 @@ async function createPopUp() {
 async function getSelectedText() {
   const text = clipboard.readText();
   clipboard.clear();
-  robot.keyToggle('shift', 'up'); //Release shift key so that it doesn't interfer with the Ctrl+C that's coming
-  robot.keyToggle('space', 'up'); //Same for the space key; no need to release the ctrl key since it's gonna be pressed again anyway
+  robot.keyToggle('alt', 'up'); //Release alt key so that it doesn't interfer with the Ctrl+C that's coming
+  robot.keyToggle('x', 'up'); //Same for the x key
   if (process.platform === 'darwin') {
     robot.keyTap('c', 'command');
   } else {
