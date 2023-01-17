@@ -9,8 +9,7 @@ import { User } from 'firebase/auth';
 import React from 'react';
  
 //Component
-export function PopUp(props: {user: User | null}) {
-  const user = props.user;
+export function PopUp({ user }: { user: User | null }) {
   const [selectedText, setSelectedText] = useState<string>(''); //Text selected by the user
   const [results, setResults] = useState<string[]>([]); //Results from API
   const [options, setOptions] = useState<Set<string>>(new Set()); //Options selected

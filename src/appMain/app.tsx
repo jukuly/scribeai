@@ -12,9 +12,14 @@ export function App() {
 
   useEffect(() => {
     window.api.receive('render', (route: string) => setWin(route));
-    onAuthStateChanged(authInstance, user => {
+    const unsub = onAuthStateChanged(authInstance, user => {
       setUser(user);
     });
+    
+    return () => {
+      window.api.removeListener('render');
+      unsub()
+    }
   }, []);
 
   switch (win) {
