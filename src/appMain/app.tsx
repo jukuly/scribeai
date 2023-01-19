@@ -12,6 +12,7 @@ export function App() {
   const [win, setWin] = useState<string>('');
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [userDataReadOnly, setUserDataReadOnly] = useState<UserDataReadOnly | null>(null);
 
   useEffect(() => {
     window.api.receive('render', (route: string) => setWin(route));
@@ -19,14 +20,19 @@ export function App() {
       setUser(user);
     });
 
-    const unsubFirestore = onSnapshot(doc(firestoreInstance, `users/${user?.uid}`), doc => {
+    const unsubFirestoreUserDataRO = onSnapshot(doc(firestoreInstance, `user-data-private/${user?.uid}`), doc => {
+      setUserDataReadOnly(doc.data() as UserDataReadOnly);
+    });
+
+    const unsubFirestoreUserData = onSnapshot(doc(firestoreInstance, `user-data-public/${user?.uid}`), doc => {
       setUserData(doc.data() as UserData);
     });
     
     return () => {
       window.api.removeListener('render');
       unsubAuth();
-      unsubFirestore();
+      unsubFirestoreUserDataRO();
+      unsubFirestoreUserData();
     }
   }, []);
 
@@ -34,7 +40,7 @@ export function App() {
     case 'main':
       return user ? <AppMain /> : <SignIn />;
     case 'pop-up':
-      return <PopUp user={user} userData={userData} />;
+      return <PopUp user={user} userDataReadOnly={userDataReadOnly} />;
     default:
       return <div>No route</div>;
   }

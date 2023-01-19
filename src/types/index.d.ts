@@ -9,7 +9,11 @@ declare global {
   interface ApiResponse {
     response: any;
   }
-  interface UserData {
+  interface UserDataReadOnly {
     expireDate: Timestamp
+  }
+  interface UserData {
+    name: string,
+    lastName: string
   }
 }
