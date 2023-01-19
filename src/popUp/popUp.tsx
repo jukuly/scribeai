@@ -7,9 +7,10 @@ import { Options } from './options/options';
 import APIFunctions from '../apiCallFunctions';
 import { User } from 'firebase/auth';
 import React from 'react';
+import { Timestamp } from 'firebase/firestore';
  
 //Component
-export function PopUp({ user }: { user: User | null }) {
+export function PopUp({ user, userData }: { user: User | null, userData: UserData | null }) {
   const [selectedText, setSelectedText] = useState<string>(''); //Text selected by the user
   const [results, setResults] = useState<string[]>([]); //Results from API
   const [options, setOptions] = useState<Set<string>>(new Set()); //Options selected
@@ -109,7 +110,7 @@ export function PopUp({ user }: { user: User | null }) {
   return (
     <div className='drag'>
       {
-        user ?
+        user && userData?.expireDate as Timestamp > Timestamp.now() ?
         <div className='signed-in' ref={win}>
           {
             loading ?
@@ -154,7 +155,7 @@ export function PopUp({ user }: { user: User | null }) {
         </div>
         : 
         <div className='not-signed-in' ref={win}>
-          <p>Must be signed in in order to use this functionnality</p>
+          <p>{`Must ${userData?.expireDate as Timestamp > Timestamp.now() ? 'be signed in' : 'have a valid subscription'} in order to use this functionnality`}</p>
           <button className='close-pop-up' onClick={() => window.api.closePopUp()}>Close</button>
         </div>
       }

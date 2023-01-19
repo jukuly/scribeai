@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export {}
 
 declare global {
@@ -6,5 +8,8 @@ declare global {
   }
   interface ApiResponse {
     response: any;
+  }
+  interface UserData {
+    expireDate: Timestamp
   }
 }
