@@ -11,7 +11,7 @@ interface User {
 }
 
 export const newUser = functions.auth.user().onCreate((user) => {
-  return admin.firestore().doc(`users/${user.uid}`).set({
+  return admin.firestore().doc(`user-data-private/${user.uid}`).set({
     expireDate: admin.firestore.Timestamp.now()
   });
 });
@@ -19,7 +19,7 @@ export const newUser = functions.auth.user().onCreate((user) => {
 export const openaiCall = functions.https.onCall(async (data, context) => {
   const user = context.auth;
   if (!user) return {response: false};
-  const userData = await db.doc(`users/${user.uid}`).get();
+  const userData = await db.doc(`user-data-private/${user.uid}`).get();
   if (((userData.data() as User).expireDate as admin.firestore.Timestamp) <= admin.firestore.Timestamp.now()) return {response: false};
 
   switch (data.model) {
