@@ -11,9 +11,13 @@ interface User {
 }
 
 export const newUser = functions.auth.user().onCreate((user) => {
-  return admin.firestore().doc(`user-data-private/${user.uid}`).set({
+  db.doc(`user-data-private/${user.uid}`).set({
     expireDate: admin.firestore.Timestamp.now()
   });
+});
+
+export const deleteUser = functions.auth.user().onDelete((user) => {
+  db.doc(`user-data-private/${user.uid}`).delete();
 });
 
 export const openaiCall = functions.https.onCall(async (data, context) => {
