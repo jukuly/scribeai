@@ -10,10 +10,25 @@ interface User {
   expireDate: admin.firestore.Timestamp;
 }
 
-export const newUser = functions.auth.user().onCreate((user) => {
-  db.doc(`user-data-private/${user.uid}`).set({
-    expireDate: admin.firestore.Timestamp.now()
-  });
+export const newUser = functions.https.onCall(async (data, context) => {
+  try {
+    const user = await admin.auth().createUser({
+      email: data.email,
+      emailVerified: false,
+      password: data.password,
+      displayName: `${data.name} ${data.lastName}`
+    });
+    db.doc(`user-data-private/${user.uid}`).set({
+      expireDate: admin.firestore.Timestamp.now()
+    });
+    return user;
+  } catch (error: any) {
+    throw new functions.https.HttpsError(
+      'aborted',
+      error.code ? error.code : 'Unknown',
+      error
+    );
+  }
 });
 
 export const deleteUser = functions.auth.user().onDelete((user) => {
