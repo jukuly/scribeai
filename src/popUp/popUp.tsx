@@ -96,6 +96,7 @@ export function PopUp() {
   }
 
   function refresh(): void {
+    if (loading) return;
     if (selectedText.length > 512) {
       setLoading(false);
       setValid(false);
@@ -103,7 +104,6 @@ export function PopUp() {
     } else if (authInstance.currentUser) {
       APIFunctions[parseInt(current)](apiCall(selectedText), apiResponse, options);
     }
-    APIFunctions[parseInt(current)](apiCall(selectedText), apiResponse, options);
   }
 
   //JSX template
