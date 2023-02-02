@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loading } from '../loading/loading';
 import { authInstance } from '../firebase';
-import { useAuthState } from "react-firebase-hooks/auth";
 import './popUp.scss';
 
-import React from 'react';
 import { Options } from './options/options';
 import APIFunctions from '../apiCallFunctions';
+import { User } from 'firebase/auth';
+import React from 'react';
+import { Timestamp } from 'firebase/firestore';
  
 //Component
-export function PopUp() {
-  const [user] = useAuthState(authInstance); //User currently signed in
+export function PopUp({ user, userDataReadOnly }: { user: User | null, userDataReadOnly: UserDataReadOnly | null }) {
   const [selectedText, setSelectedText] = useState<string>(''); //Text selected by the user
   const [results, setResults] = useState<string[]>([]); //Results from API
   const [options, setOptions] = useState<Set<string>>(new Set()); //Options selected
@@ -110,7 +110,7 @@ export function PopUp() {
   return (
     <div className='drag'>
       {
-        user ?
+        user && userDataReadOnly?.expireDate as Timestamp > Timestamp.now() ?
         <div className='signed-in' ref={win}>
           {
             loading ?
@@ -155,7 +155,7 @@ export function PopUp() {
         </div>
         : 
         <div className='not-signed-in' ref={win}>
-          <p>Must be signed in in order to use this functionnality</p>
+          <p>{`Must ${userDataReadOnly?.expireDate as Timestamp > Timestamp.now() ? 'be signed in' : 'have a valid subscription'} in order to use this functionnality`}</p>
           <button className='close-pop-up' onClick={() => window.api.closePopUp()}>Close</button>
         </div>
       }

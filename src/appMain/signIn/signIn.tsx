@@ -1,6 +1,6 @@
 import './signIn.scss';
 import { authInstance } from '../../firebase';
-import * as auth from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from 'react';
 import React from 'react';
 
@@ -11,7 +11,7 @@ export function SignIn() {
   const [error, setError] = useState('');
 
   function signIn(): void {
-    auth.signInWithEmailAndPassword(authInstance, email, password)
+    signInWithEmailAndPassword(authInstance, email, password)
       .then(() => setError(''))
       .catch(err => {
         if (err.code === 'auth/invalid-email' || err.code === 'auth/user-not-found'

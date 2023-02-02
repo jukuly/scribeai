@@ -10,16 +10,35 @@ interface User {
   expireDate: admin.firestore.Timestamp;
 }
 
-export const newUser = functions.auth.user().onCreate((user) => {
-  return admin.firestore().doc(`users/${user.uid}`).set({
-    expireDate: admin.firestore.Timestamp.now()
-  });
+export const newUser = functions.https.onCall(async (data, context) => {
+  try {
+    const user = await admin.auth().createUser({
+      email: data.email,
+      emailVerified: false,
+      password: data.password,
+      displayName: `${data.name} ${data.lastName}`
+    });
+    db.doc(`user-data-private/${user.uid}`).set({
+      expireDate: admin.firestore.Timestamp.now()
+    });
+    return user;
+  } catch (error: any) {
+    throw new functions.https.HttpsError(
+      'aborted',
+      error.code ? error.code : 'Unknown',
+      error
+    );
+  }
+});
+
+export const deleteUser = functions.auth.user().onDelete((user) => {
+  db.doc(`user-data-private/${user.uid}`).delete();
 });
 
 export const openaiCall = functions.https.onCall(async (data, context) => {
   const user = context.auth;
   if (!user) return {response: false};
-  const userData = await db.doc(`users/${user.uid}`).get();
+  const userData = await db.doc(`user-data-private/${user.uid}`).get();
   if (((userData.data() as User).expireDate as admin.firestore.Timestamp) <= admin.firestore.Timestamp.now()) return {response: false};
 
   switch (data.model) {
