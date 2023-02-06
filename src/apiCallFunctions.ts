@@ -15,8 +15,8 @@ export default [
       callback(((await openaiCall(
         { 
           model: 'curie',
-          prompt: `${(options.size > 0 && text === '') ? 'Write a sentence' : 'Add to this text'} ${options.size > 0 ? 
-            `using these keywords: ${Array.from(options).map((keyword, index) => 
+          prompt: `${(options.size > 0 && text === '') ? 'Write a sentence' : 'Add to this text'}${options.size > 0 ? 
+            ` using these keywords: ${Array.from(options).map((keyword, index) => 
               index < options.size-1 ?
                 index === 0 ?
                   keyword
@@ -24,7 +24,8 @@ export default [
               : ` ${keyword}.`)}`
             : '.'}\n\n${text}`,
           temperature: 1,
-          maxTokens: 16 
+          maxTokens: 16,
+          feature: 'textCompletion' 
         }
       )).data as ApiResponse).response);
     }
@@ -43,7 +44,8 @@ export default [
         prompt: `Correct the grammar.\n\n${
           (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
         }\n\n`,
-        temperature: 0
+        temperature: 0,
+        feature: 'grammar' 
       }
     )).data as ApiResponse).response);
   },
@@ -61,7 +63,8 @@ export default [
         prompt: `Rephrase this${options.size > 0 ? ` using this style: ${[...options][0]}` : ''}.\n\n${
           (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
         }\n\n`,
-        temperature: 1  
+        temperature: 1,
+        feature: 'rephrase'  
       }
     )).data as ApiResponse).response);
   },
@@ -80,7 +83,8 @@ export default [
         prompt: `Translate this into ${language}:\n\n${
           (text.endsWith('.') || text.endsWith('!') || text.endsWith('?')) ? text : `${text}.`
         }\n\n`,
-        temperature: 0.3  
+        temperature: 0.3,
+        feature: 'translation'  
       }
     )).data as ApiResponse).response);
   }

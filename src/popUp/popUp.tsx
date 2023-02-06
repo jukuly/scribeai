@@ -7,10 +7,10 @@ import { Options } from './options/options';
 import APIFunctions from '../apiCallFunctions';
 import { User } from 'firebase/auth';
 import React from 'react';
-import { Timestamp } from 'firebase/firestore';
+import usePremiumStatus from '../stripe/usePremiumStatus';
  
 //Component
-export function PopUp({ user, userDataReadOnly }: { user: User | null, userDataReadOnly: UserDataReadOnly | null }) {
+export function PopUp({ user }: { user: User | null }) {
   const [selectedText, setSelectedText] = useState<string>(''); //Text selected by the user
   const [results, setResults] = useState<string[]>([]); //Results from API
   const [options, setOptions] = useState<Set<string>>(new Set()); //Options selected
@@ -19,6 +19,8 @@ export function PopUp({ user, userDataReadOnly }: { user: User | null, userDataR
   const [loading, setLoading] = useState<boolean>(true); //True when waiting for response from API
   const [current, setCurrent] = useState<string>('0'); //The id of the service selected
   const win = useRef(null); //Ref to the screen to adjust it's size dynamically
+
+  const premiumStatus = usePremiumStatus(user);
 
   //Init listeners for messages from main process
   useEffect(() => {
@@ -95,22 +97,44 @@ export function PopUp({ user, userDataReadOnly }: { user: User | null, userDataR
     window.api.closePopUp();
   }
 
-  function refresh(): void {
-    if (selectedText.length > 512) {
+  async function refresh(): Promise<void> {
+    if (selectedText.length > 450) {
       setLoading(false);
       setValid(false);
       setResults(['Make sure the selected text doesn\'t go over 450 characters']);
-    } else if (authInstance.currentUser) {
-      APIFunctions[parseInt(current)](apiCall(selectedText), apiResponse, options);
+      return;
     }
-    APIFunctions[parseInt(current)](apiCall(selectedText), apiResponse, options);
+
+    if (user) {
+      try {
+        await APIFunctions[parseInt(current)](apiCall(selectedText), apiResponse, options);
+      } catch (err: any) {
+        switch (err.code) {
+          case 'functions/unauthenticated':
+            setLoading(false);
+            setValid(false);
+            setResults(['You need to be authenticated to use this functionnality']);
+            break;
+          case 'functions/permission-denied':
+            setLoading(false);
+            setValid(false);
+            setResults(['Upgrade your plan in order to use this functionnality']);
+            break;
+          case 'functions/resource-exhausted':
+            setLoading(false);
+            setValid(false);
+            setResults(['You have maxed out you daily quota, upgrade your plan to continue']);
+            break;
+        }
+      }
+    }
   }
 
   //JSX template
   return (
     <div className='drag'>
       {
-        user && userDataReadOnly?.expireDate as Timestamp > Timestamp.now() ?
+        (user && premiumStatus) ?
         <div className='signed-in' ref={win}>
           {
             loading ?
@@ -130,10 +154,10 @@ export function PopUp({ user, userDataReadOnly }: { user: User | null, userDataR
           }
           <div className='buttons'>
             <select className='action' value={current} onChange={event => setCurrent(event.target.value)}>
-              <option value='0'>Complete</option>
-              <option value='1'>Grammar</option>
-              <option value='2'>Rephrase</option>
-              <option value='3'>Translate</option>
+              { (premiumStatus === 'basic' || premiumStatus === 'standard' || premiumStatus === 'pro') && <option value='0'>Complete</option> }
+              { (premiumStatus === 'standard' || premiumStatus === 'pro') && <option value='1'>Grammar</option> }
+              { (premiumStatus === 'standard' || premiumStatus === 'pro') && <option value='2'>Rephrase</option> }
+              { (premiumStatus === 'standard' || premiumStatus === 'pro') && <option value='3'>Translate</option> }
             </select>
             <button className='refresh' onClick={() => refresh()}>
               <span className='material-symbols-outlined'>
@@ -155,7 +179,7 @@ export function PopUp({ user, userDataReadOnly }: { user: User | null, userDataR
         </div>
         : 
         <div className='not-signed-in' ref={win}>
-          <p>{`Must ${userDataReadOnly?.expireDate as Timestamp > Timestamp.now() ? 'be signed in' : 'have a valid subscription'} in order to use this functionnality`}</p>
+          <p>{`Must ${!user ? 'be signed in' : 'have a valid subscription'} in order to use this functionnality`}</p>
           <button className='close-pop-up' onClick={() => window.api.closePopUp()}>Close</button>
         </div>
       }
