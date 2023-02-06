@@ -83,6 +83,8 @@ async function createPopUp() {
     await popUpWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, './index.html')}`); 
     popUpWindow.webContents.send('render', 'pop-up');
 
+    setInterval(() => popUpWindow.setAlwaysOnTop(true), 10000);
+
     if (isDev) popUpWindow.webContents.openDevTools();
   }
 }

@@ -98,6 +98,7 @@ export function PopUp({ user }: { user: User | null }) {
   }
 
   async function refresh(): Promise<void> {
+    if (loading) return;
     if (selectedText.length > 450) {
       setLoading(false);
       setValid(false);
