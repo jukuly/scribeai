@@ -120,6 +120,12 @@ if (!firstInstance) {
   });
 }
 
+if (!isDev) {
+  app.setLoginItemSettings({
+    openAtLogin: true
+  });
+}
+
 app.on('ready', async () => await initializeApp());
 
 app.on('activate', async () => await initializeApp());
