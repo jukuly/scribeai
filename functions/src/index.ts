@@ -47,7 +47,7 @@ export const openaiCall = functions.https.onCall(async (data, context) => {
     feature: data.feature,
     prompt: data.prompt,
     temperature: data.temperature,
-    maxTokens: data.maxTokens,
+    maxTokens: data.maxTokens ? data.maxTokens : -1,
     date: admin.firestore.Timestamp.now()
   });
 
