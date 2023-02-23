@@ -2,6 +2,7 @@
 
 This is a AI Writing Assistant powered by the OpenAI API. It includes features such as text completion based on the context and keywords, translation, rephrasing and grammar correction. It is built using the Electron framework and the React library.
 
+#Information below may be outdated
 Dependencies (npm packages):
 - electron
 - react
