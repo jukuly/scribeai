@@ -42,14 +42,14 @@ export const openaiCall = functions.https.onCall(async (data, context) => {
     todaysCount >= 500 && role === 'standard') {
     throw new functions.https.HttpsError('resource-exhausted', 'Too many requests today.');
   }
-
+  /*
   db.collection(`users/${context.auth?.uid}/open-ai-requests`).add({
     feature: data.feature,
     prompt: data.prompt,
     temperature: data.temperature,
     maxTokens: data.maxTokens ? data.maxTokens : -1,
     date: admin.firestore.Timestamp.now()
-  });
+  });*/
 
   switch (data.model) {
     case 'davinci':
